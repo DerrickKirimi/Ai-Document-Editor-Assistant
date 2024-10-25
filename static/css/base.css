@@ -13,8 +13,8 @@ section{
     padding: 3em 0;
 }
 .heroSection{
-    background-color: #23424A;
-    color: white;
+    background-color: #e5dfd9;
+    color: black;
 }
 .heroText{
     margin: 0 auto;
@@ -59,7 +59,7 @@ button{
     color:#000000;
 }
 .lastSection{
-    background:#81dbdb;
+    background:#e5dfd9;
     color: rgb(12, 12, 12);
 }
 
