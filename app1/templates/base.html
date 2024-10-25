@@ -1,0 +1,84 @@
+{%load static %}
+<!DOCTYPE html>
+<html lang="en"> 
+    <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}">
+      <title>AI Doc Editor</title>
+    {% block head %}
+
+    {% block title %}
+    {% endblock title %}
+
+    {% endblock head %}
+    </head>
+  <body>
+    <main>
+      <section class="heroSection">
+          <article class="heroText">
+              <h1>AI DOCUMENT EDITOR ASSISTANT </h1>
+              <p>Upload documents and get side by side AI-generated improvement suggestions</p>
+              <button onclick="scrollToLastSection()">I want to learn</button>
+          </article>
+      </section>
+
+      {% block content %} 
+
+      <section  class="flexSection lastSection1">
+          <div class="form-container">
+              <form method="POST" class="custom-form" action="{% url 'upload_document' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label class="form-label">
+                <h2>Upoad your Document</h2>
+                <input required name="document" type="file" class="form-control" />
+                </label>
+    
+                <div>
+                <button type="submit" class="custom-btn">Upload</button>
+                </div>
+              </form>
+          </div>
+      </section>
+
+      {% endblock content %}
+
+      <section class="flexSection lastSection">
+          <article class="flexText">
+              <div class="card">
+                  <h2 class="accentColor">Text Preprocessing</h2>
+                  <p>Initial cleaning and organization of the text involve removing irrelevant characters, punctuation, and formatting.
+                      Tokenization breaks the text into manageable units, and common stop words are eliminated.</p>
+              </div>
+              <div class="card">
+                  <h2 class="accentColor">Text Representation:</h2>
+                  <p>The text is transformed into a numerical format suitable for analysis, commonly using 
+                      techniques like TF-IDF or word embeddings (e.g., Word2Vec) to capture semantic meanings.</p>
+              </div>
+              <div class="card">
+                  <h2 class="accentColor">Sentence Scoring</h2>
+                  <p>Sentences are scored based on factors like length, word frequency, and document position.
+                      Graph-based algorithms like TextRank or PageRank help assess sentence importance.</p>
+              </div>
+              <div class="card">
+                  <h2 class="accentColor">Summarization</h2>
+                  <p>The most important sentences are selected to form the summary.
+                      This can be achieved through extractive methods (directly extracting sentences) or abstractive methods (generating new sentences).</p>
+              </div>
+          </article>
+      </section>
+    </main>
+	  
+    <script>
+      function scrollToLastSection() {
+          const lastSection = document.querySelector('.lastSection');
+          lastSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    </script>
+    {% block script %}
+    {% endblock script %}
+
+  </body>
+</html>
