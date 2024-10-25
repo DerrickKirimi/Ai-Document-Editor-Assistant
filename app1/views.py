@@ -54,12 +54,12 @@ def upload_document(request):
 
             messages.success(request, 'Text Extractted Successfully !')
             
-            return render(request, 'showText.html', {'extracted_text': text})
+            return render(request, 'showOriginal.html', {'extracted_text': text})
 
     except Exception as e:
         # Handle exceptions (e.g., file not found, extraction error)
         messages.error(request, 'Incorrect File Format: {}'.format(str(e)))
-    return render(request, 'showText.html')
+    return render(request, 'showOriginal.html')
 
 def summarization(request):
     if request.method == 'POST':
@@ -104,4 +104,4 @@ def summarization(request):
 
         messages.success(request, 'Summary Generated Successfully !')
 
-        return render(request, 'showSumText.html', {'sum_text': summary})
+        return render(request, 'showSuggestions.html', {'sum_text': summary})

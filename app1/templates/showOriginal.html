@@ -9,14 +9,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/show.css' %}">
     {% block title %}
-      <title>Summary Text</title>
+      <title>Extracted Text</title>
     {% endblock title %}
   </head>
   {% endblock head %}
   <body>
     {% block content %}
+
     <div class="container">
-        <h2 class="center">Summary Text</h2>
+        <h2 class="center">Extracted Text</h2>
         <!-- Notification Container -->
         <div class="notification-container">
           {% for message in messages %}
@@ -25,18 +26,19 @@
               </div>
           {% endfor %}
         </div>
-        <form method="post" action="{% url 'main' %}">
+        <form method="post" action="{% url 'summary' %}">
           {% csrf_token %}
           <div class="textarea-container">
-              <textarea name="sum_text" rows="15" readonly>{{ sum_text }}</textarea>
-              <textarea name="sum_text" rows="15" readonly>{{ sum_text }}</textarea>
+          <textarea name="extracted_text" rows="12" readonly>{{ extracted_text }}</textarea>
           </div>
           <br>
-          <button type="submit" class="custom-btn">Home</button>
-        </form>        
+          <button type="submit" class="custom-btn">Improve</button>
+        </form>
         <br>
     </div>
+
     {% endblock %}
+    
     {% block script %}
     <script>
         // Automatically close notifications after 5 seconds
@@ -47,8 +49,9 @@
                     notification.remove();
                 });
             }, 2000); // Adjust the time in milliseconds (e.g., 2000 for 2 seconds)
-          // Scroll to the text section
-          var textSection = document.querySelector('.container');
+
+            // Scroll to the text section
+            var textSection = document.querySelector('.container');
             if (textSection) {
                 textSection.scrollIntoView({ behavior: 'smooth' });
             }

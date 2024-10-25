@@ -21,7 +21,6 @@
           <article class="heroText">
               <h1>AI DOCUMENT EDITOR ASSISTANT </h1>
               <p>Upload documents and get side by side AI-generated improvement suggestions</p>
-              <!-- button onclick="scrollToLastSection()">I want to learn</button-->
           </article>
       </section>
 
@@ -32,7 +31,7 @@
               <form method="POST" class="custom-form" action="{% url 'upload_document' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <label class="form-label">
-                <h2>Upoad your Document</h2>
+                <h2>Upload your Document</h2>
                 <input required name="document" type="file" class="form-control" />
                 </label>
     
@@ -56,7 +55,7 @@
                   <p></p>
               </div>
               <div class="card">
-                  <h2 class="accentColor">Sentence Scoring</h2>
+                  <h2 class="accentColor">Analysis</h2>
                   <p></p>
               </div>
               <div class="card">
