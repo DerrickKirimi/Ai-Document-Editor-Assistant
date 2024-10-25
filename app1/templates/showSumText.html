@@ -27,10 +27,13 @@
         </div>
         <form method="post" action="{% url 'main' %}">
           {% csrf_token %}
-          <textarea name="sum_text" rows="10" readonly>{{ sum_text }}</textarea>
+          <div class="textarea-container">
+              <textarea name="sum_text" rows="15" readonly>{{ sum_text }}</textarea>
+              <textarea name="sum_text" rows="15" readonly>{{ sum_text }}</textarea>
+          </div>
           <br>
           <button type="submit" class="custom-btn">Home</button>
-        </form>
+        </form>        
         <br>
     </div>
     {% endblock %}
