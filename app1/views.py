@@ -35,6 +35,7 @@ def upload_document(request):
             # Determine file format and extract text accordingly
             if uploaded_file.content_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
                 # DOCX file
+                text = ''
                 text = docx2txt.process(temporary_file_path)
             elif uploaded_file.content_type == 'application/pdf':
                 # PDF file using PyPDF2
@@ -52,7 +53,7 @@ def upload_document(request):
             # Remove the temporary file
             os.remove(temporary_file_path)
 
-            messages.success(request, 'Text Extractted Successfully !')
+            messages.success(request, 'Text Extracted Successfully !')
             
             return render(request, 'showOriginal.html', {'extracted_text': text})
 
@@ -104,4 +105,6 @@ def summarization(request):
 
         messages.success(request, 'Summary Generated Successfully !')
 
-        return render(request, 'showSuggestions.html', {'sum_text': summary})
+        # Passing both original_text and improved_text. Note both first and second argument are determined within this function
+        return render(request, 'showSuggestions.html', {'original_text': article_text, 'improved_text': summary})
+        

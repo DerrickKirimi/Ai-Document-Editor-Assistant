@@ -28,8 +28,8 @@
         <form method="post" action="{% url 'main' %}">  
           {% csrf_token %}
           <div class="textarea-container">
-              <textarea name="sum_text" rows="15" readonly>{{ sum_text }}</textarea>
-              <textarea name="sum_text" rows="15" readonly>{{ sum_text }}</textarea>
+              <textarea name="original_text" rows="15" readonly>{{ original_text }}</textarea>
+              <textarea name="improved_text" rows="15" readonly>{{ improved_text}}</textarea>
           </div>
           <br>
           <button type="submit" class="custom-btn">Home</button> <!--Add export button-->
