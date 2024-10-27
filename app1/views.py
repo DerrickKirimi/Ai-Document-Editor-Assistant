@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, HttpResponse
 # For Flash Messages
 from django.contrib import messages
+
+from .models import Document, Content
+from django.utils import timezone
 from .forms import UserRegistrationForm
 
 from django.shortcuts import get_object_or_404, render, redirect
@@ -17,6 +20,8 @@ import nltk
 #nltk.download('punkt')
 #nltk.download('stopwords')
 #nltk.download('wordnet') 
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize, sent_tokenize
 import heapq
 
 def register(request):
@@ -77,20 +82,39 @@ def upload_document(request):
                     text = f.read()
             else:
                 messages.success(request, 'Unsupported file format !')
+                return redirect('upload')
+
 
             # Remove the temporary file
             os.remove(temporary_file_path)
 
-            messages.success(request, 'Text Extracted Successfully !')
+            # Save document metadata in Documents table
+            document = Document.objects.create(user=request.user, status="Uploaded")
+
+            # Save extracted content
+            Content.objects.create(document=document, original_text=text)
+
+            messages.success(request, "Document uploaded and text extracted successfully !")
+
+            return redirect('show_original', document_id=document.id)
             
-            return render(request, 'app1/showOriginal.html', {'extracted_text': text})
+            #return render(request, 'app1/showOriginal.html', {'extracted_text': text})
 
     except Exception as e:
         # Handle exceptions (e.g., file not found, extraction error)
         messages.error(request, 'Incorrect File Format: {}'.format(str(e)))
     return render(request, 'app1/showOriginal.html')
 
-def summarization(request):
+@login_required
+def show_original(request, document_id):
+    document = get_object_or_404(Document, id=document_id, user=request.user)
+    context = {
+        'document': document,
+        'original_text': document.content.original_text,
+    }
+    return render(request, 'showOriginal.html', context)
+
+def improve_document(request):
     if request.method == 'POST':
         # Get the article text from the form data
         article_text = request.POST.get('extracted_text', '')
