@@ -58,3 +58,37 @@ python -m nltk.downloader punkt stopwords wordnet
 
 
 ```
+
+django-admin startproject projectname projectdir
+
+python manage.py startapp appname
+
+add models
+
+add 'appname.apps.AppnameConfig' to settings.py
+
+python manage.py makemigrations app1
+python manage.py sqlmigrate app1 0001
+
+python manage.py migrate
+
+
+
+python manage.py sqlmigrate app1 0001
+BEGIN;
+------
+
+-- Create model Document
+------------------------
+
+CREATE TABLE "app1_document" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "upload_date" datetime NOT NULL, "status" varchar(20) NOT NULL, "user_id" integer NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED);
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Create model Content
+-----------------------
+
+CREATE TABLE "app1_content" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "original_text" text NOT NULL, "improved_text" text NULL, "document_id" bigint NOT NULL UNIQUE REFERENCES "app1_document" ("id") DEFERRABLE INITIALLY DEFERRED);
+CREATE INDEX "app1_document_user_id_de3be396" ON "app1_document" ("user_id");
+COMMIT;
+First include this in your settings.py CRISPY_TEMPLATE_PACK = 'bootstrap4'
+After doing that you might encounter a challenge that the template does not exist. If that occurs, make sure you have crispy-bootstrap installed - pip install crispy-bootstrap4 and add 'crispy_bootstrap4' to your list of INSTALLED_APPS.
