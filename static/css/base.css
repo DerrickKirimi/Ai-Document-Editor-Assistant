@@ -69,3 +69,65 @@ button{
     justify-content: center;
     align-items: center;
 }
+
+/* Navbar style */
+.navbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #333;
+    color: #fff;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* User info styling */
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+}
+
+/* Styles for welcome and logout in vertical alignment */
+.welcome-logout {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem; /* Space between Welcome message and Logout button */
+}
+
+/* Welcome message styling */
+#welcome-user {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+/* Logout button styling */
+.logout-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 1rem;
+    padding: 0;
+}
+
+
+.auth-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.auth-links .link {
+    color: #fff;
+    text-decoration: none;
+}
+
