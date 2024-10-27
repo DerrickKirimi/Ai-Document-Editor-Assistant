@@ -1,6 +1,12 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, redirect, HttpResponse
 # For Flash Messages
 from django.contrib import messages
+from .forms import UserRegistrationForm
+
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 import os
 import docx2txt  # for DOCX files
@@ -13,7 +19,29 @@ import nltk
 #nltk.download('wordnet') 
 import heapq
 
-# Create your views here.
+def register(request):
+    """
+    User Registration form
+    Args:
+        request (POST): New user registered
+    """    
+    form = UserRegistrationForm()
+    if request.method == "POST":
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+    else:
+        form = UserRegistrationForm()
+
+    context = {"form": form}
+    return render(request, "app1/register.html", context)
+
+def logout_user(request):
+    logout(request)
+    return redirect("login")
+
+@login_required
 def main(request):
     return render(request,'base.html')
 
