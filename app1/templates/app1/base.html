@@ -1,0 +1,79 @@
+{%load static %}
+<!DOCTYPE html>
+<html lang="en"> 
+    <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}">
+      <title>AI Doc Editor</title>
+    {% block head %}
+
+    {% block title %}
+    {% endblock title %}
+
+    {% endblock head %}
+    </head>
+  <body>
+    <main>
+      <section class="heroSection">
+          <article class="heroText">
+              <h1>AI DOCUMENT EDITOR ASSISTANT </h1>
+              <p>Upload documents and get side by side AI-generated improvement suggestions</p>
+          </article>
+      </section>
+
+      {% block content %} 
+
+      <section  class="flexSection lastSection1">
+          <div class="form-container">
+              <form method="POST" class="custom-form" action="{% url 'upload_document' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label class="form-label">
+                <h2>Upload your Document</h2>
+                <input required name="document" type="file" class="form-control" />
+                </label>
+    
+                <div>
+                <button type="submit" class="custom-btn">Upload</button>
+                </div>
+              </form>
+          </div>
+      </section>
+
+      {% endblock content %}
+
+      <section class="flexSection lastSection">
+          <article class="flexText">
+              <div class="card">
+                  <h2 class="accentColor">Text Preprocessing</h2>
+                  <p></p>
+              </div>
+              <div class="card">
+                  <h2 class="accentColor">Text Representation:</h2>
+                  <p></p>
+              </div>
+              <div class="card">
+                  <h2 class="accentColor">Analysis</h2>
+                  <p></p>
+              </div>
+              <div class="card">
+                  <h2 class="accentColor">Improvements & suggestions</h2>
+                  <p></p>
+              </div>
+          </article>
+      </section>
+    </main>
+	  
+    <script>
+      function scrollToLastSection() {
+          const lastSection = document.querySelector('.lastSection');
+          lastSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    </script>
+    {% block script %}
+    {% endblock script %}
+
+  </body>
+</html>
