@@ -43,7 +43,7 @@ def logout_user(request):
 
 @login_required
 def main(request):
-    return render(request,'base.html')
+    return render(request,'app1/base.html')
 
 global text
 def upload_document(request):
@@ -83,12 +83,12 @@ def upload_document(request):
 
             messages.success(request, 'Text Extracted Successfully !')
             
-            return render(request, 'showOriginal.html', {'extracted_text': text})
+            return render(request, 'app1/showOriginal.html', {'extracted_text': text})
 
     except Exception as e:
         # Handle exceptions (e.g., file not found, extraction error)
         messages.error(request, 'Incorrect File Format: {}'.format(str(e)))
-    return render(request, 'showOriginal.html')
+    return render(request, 'app1/showOriginal.html')
 
 def summarization(request):
     if request.method == 'POST':
@@ -134,5 +134,5 @@ def summarization(request):
         messages.success(request, 'Summary Generated Successfully !')
 
         # Passing both original_text and improved_text. Note both first and second argument are determined within this function
-        return render(request, 'showSuggestions.html', {'original_text': article_text, 'improved_text': summary})
+        return render(request, 'app1/showSuggestions.html', {'original_text': article_text, 'improved_text': summary})
         

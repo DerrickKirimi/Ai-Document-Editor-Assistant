@@ -1,28 +1,46 @@
-{%load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en"> 
-    <head>
-      <meta charset="UTF-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
-      <link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}">
       <title>AI Doc Editor</title>
     {% block head %}
-
-    {% block title %}
-    {% endblock title %}
-
+    {% block title %}{% endblock title %}
     {% endblock head %}
-    </head>
-  <body>
+</head>
+<body>
+    <nav class="navbar">
+        <p class="navbar-brand">AI Document Editor Assistant</p>
+
+        {% if user.is_authenticated %}
+            <p id="welcome-user">Welcome, {{ request.user.username }}</p>
+            <ul>
+                <li class="navbar-item">
+                    <a class="link" href="{% url 'logout' %}">Logout</a>
+                </li>
+            </ul>
+        {% else %}
+            <ul>
+                {% if request.path == '/register/' %}
+                    <li><a class="link" href="{% url 'login' %}">Login</a></li>
+                {% elif request.path == '/login/' %}
+                    <li><a class="link" href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </nav>
+
     <main>
-      <section class="heroSection">
-          <article class="heroText">
+        <section class="heroSection">
+            <article class="heroText">
               <h1>AI DOCUMENT EDITOR ASSISTANT </h1>
               <p>Upload documents and get side by side AI-generated improvement suggestions</p>
-          </article>
-      </section>
+            </article>
+        </section>
 
       {% block content %} 
 
@@ -44,36 +62,37 @@
 
       {% endblock content %}
 
-      <section class="flexSection lastSection">
-          <article class="flexText">
-              <div class="card">
-                  <h2 class="accentColor">Text Preprocessing</h2>
-                  <p></p>
-              </div>
-              <div class="card">
-                  <h2 class="accentColor">Text Representation:</h2>
-                  <p></p>
-              </div>
-              <div class="card">
-                  <h2 class="accentColor">Analysis</h2>
-                  <p></p>
-              </div>
-              <div class="card">
-                  <h2 class="accentColor">Improvements & suggestions</h2>
-                  <p></p>
-              </div>
-          </article>
-      </section>
+        <section class="flexSection lastSection">
+            <article class="flexText">
+                <div class="card">
+                    <h2 class="accentColor">Text Preprocessing</h2>
+                    <p></p>
+                </div>
+                <div class="card">
+                    <h2 class="accentColor">Text Representation:</h2>
+                    <p></p>
+                </div>
+                <div class="card">
+                    <h2 class="accentColor">Analysis</h2>
+                    <p></p>
+                </div>
+                <div class="card">
+                    <h2 class="accentColor">Improvements & suggestions</h2>
+                    <p></p>
+                </div>
+            </article>
+        </section>
     </main>
-	  
-    <script>
-      function scrollToLastSection() {
-          const lastSection = document.querySelector('.lastSection');
-          lastSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    </script>
-    {% block script %}
-    {% endblock script %}
 
-  </body>
+    <script>
+        function scrollToLastSection() {
+            const lastSection = document.querySelector('.lastSection');
+            lastSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    {% block script %}{% endblock script %}
+</body>
 </html>
