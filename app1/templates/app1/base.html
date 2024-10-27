@@ -14,24 +14,27 @@
 </head>
 <body>
     <nav class="navbar">
-        <p class="navbar-brand">AI Document Editor Assistant</p>
+        <!--p class="navbar-brand">AI Document Editor Assistant</p>-->
 
         {% if user.is_authenticated %}
-            <p id="welcome-user">Welcome, {{ request.user.username }}</p>
-            <ul>
-                <li class="navbar-item">
-                    <a class="link" href="{% url 'logout' %}">Logout</a>
-                </li>
-            </ul>
-        {% else %}
-            <ul>
-                {% if request.path == '/register/' %}
-                    <li><a class="link" href="{% url 'login' %}">Login</a></li>
-                {% elif request.path == '/login/' %}
-                    <li><a class="link" href="{% url 'register' %}">Register</a></li>
-                {% endif %}
-            </ul>
+    <p id="welcome-user">Welcome, {{ request.user.username }}</p>
+    <ul>
+        <li class="navbar-item">
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="link" style="background:none; border:none; color:inherit; cursor:pointer;">Logout</button>
+            </form>
+        </li>
+    </ul>
+{% else %}
+    <ul>
+        {% if request.path == '/register/' %}
+            <li><a class="link" href="{% url 'login' %}">Login</a></li>
+        {% elif request.path == '/login/' %}
+            <li><a class="link" href="{% url 'register' %}">Register</a></li>
         {% endif %}
+    </ul>
+{% endif %}
     </nav>
 
     <main>
