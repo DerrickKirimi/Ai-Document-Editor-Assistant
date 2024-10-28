@@ -16,7 +16,7 @@
   <body>
     {% block content %}
     <div class="container">
-        <h2 class="center">Improved Text</h2>
+        <h2 class="center">Improvement Suggestion</h2>
         <!-- Notification Container -->
         <div class="notification-container">
           {% for message in messages %}
@@ -27,12 +27,23 @@
         </div>
         <form method="post" action="{% url 'accept_improvements' document_id=document.id %}">
           {% csrf_token %}
+
+          <table>
+            <tr>
+                <td style="padding-right: 400px;">
+                    <h3>Original Text</h3>
+                </td>
+                <td>
+                    <h3>Improved Text</h3>
+                </td>
+            </tr>
+        </table>
+
           <div class="textarea-container">
-              <h3>Original Text</h3>
               <textarea name="original_text" rows="12" readonly>{{ original_text }}</textarea>
-              <h3>Improved Text</h3>
               <textarea name="improved_text" rows="12">{{ improved_text }}</textarea>
           </div>
+          
           <br>
           <button type="submit" class="custom-btn">Accept</button>
         </form>       
