@@ -56,6 +56,13 @@ def upload_document(request):
         if request.method == 'POST':
             uploaded_file = request.FILES['document']
 
+            valid_extensions = ['.txt', '.doc', '.docx', '.pdf']  # Add valid formats
+            _, file_extension = os.path.splitext(uploaded_file.name)
+
+            if file_extension.lower() not in valid_extensions:
+                messages.error(request, 'Invalid file format. Please upload a .pdf, .txt, .doc, or .docx file.')
+                return render(request, 'app1/base.html')  # Stay on the upload page
+
             #Ensure the media directory exists
             os.makedirs('media', exist_ok=True)
 
@@ -81,9 +88,8 @@ def upload_document(request):
                 with open(temporary_file_path, 'r') as f:
                     text = f.read()
             else:
-                messages.success(request, 'Unsupported file format !')
-                return redirect('upload')
-
+                messages.error(request, 'Invalid file format. Please upload a .txt, .doc, or .docx file.')
+                return render(request, 'app1/base.html')  # Stay on the upload page
 
             # Remove the temporary file
             os.remove(temporary_file_path)
@@ -165,7 +171,7 @@ def improve_document(request, document_id):
         document.status = 'Improved'
         document.save()
 
-        messages.success(request, 'Summary Generated Successfully !')
+        messages.success(request, 'Improvements Generated Successfully !')
 
         # Passing both original_text and improved_text. Note both first and second argument are determined within this function
         return redirect('show_suggestions', document_id=document.id)
