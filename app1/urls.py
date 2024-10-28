@@ -14,4 +14,5 @@ urlpatterns = [
     path('documents/<int:document_id>/original/', views.show_original, name='show_original'),
     path('documents/<int:document_id>/improve/', views.improve_document, name='improve_document'),
     path('documents/<int:document_id>/suggestions/', views.show_suggestions, name='show_suggestions'),
+    path('documents/<int:document_id>/accept/', views.accept_improvements, name='accept_improvements'),
 ]

@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/show.css' %}">
     {% block title %}
-      <title>Improved Text</title>
+      <title>Document Suggestions</title>
     {% endblock title %}
   </head>
   {% endblock head %}
@@ -25,15 +25,17 @@
               </div>
           {% endfor %}
         </div>
-        <form method="post" action="{% url 'main' %}">  
+        <form method="post" action="{% url 'accept_improvements' document_id=document.id %}">
           {% csrf_token %}
           <div class="textarea-container">
-              <textarea name="original_text" rows="15" readonly>{{ original_text }}</textarea>
-              <textarea name="improved_text" rows="15" readonly>{{ improved_text}}</textarea>
+              <h3>Original Text</h3>
+              <textarea name="original_text" rows="12" readonly>{{ original_text }}</textarea>
+              <h3>Improved Text</h3>
+              <textarea name="improved_text" rows="12">{{ improved_text }}</textarea>
           </div>
           <br>
-          <button type="submit" class="custom-btn">Home</button> <!--Add export button-->
-        </form>        
+          <button type="submit" class="custom-btn">Accept</button>
+        </form>       
         <br>
     </div>
     {% endblock %}

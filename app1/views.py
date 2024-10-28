@@ -187,3 +187,33 @@ def show_suggestions(request, document_id):
         'improved_text': document.content.improved_text,
     }
     return render(request, 'app1/showSuggestions.html', context)
+
+@login_required
+def accept_improvements(request, document_id):
+    document = get_object_or_404(Document, id=document_id, user=request.user)
+
+    if request.method == 'POST':
+        original_text = request.POST.get('original_text')
+        improved_text = request.POST.get('improved_text')
+
+        # Update the content model
+        content = document.content
+        content.original_text = original_text
+        content.improved_text = improved_text
+        content.save()  # Save changes
+
+        # Update document status if necessary
+        document.status = "Accepted"
+        document.save()
+
+        messages.success(request, "Improvements have been accepted and saved successfully!")
+        return redirect('show_original', document_id=document.id)
+
+    # Handle GET requests if necessary
+    context = {
+        'original_text': document.content.original_text,
+        'improved_text': document.content.improved_text,
+        'document': document,
+    }
+
+    return render(request, 'app1/showSuggestions.html', context)
