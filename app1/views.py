@@ -112,12 +112,16 @@ def show_original(request, document_id):
         'document': document,
         'original_text': document.content.original_text,
     }
-    return render(request, 'showOriginal.html', context)
 
-def improve_document(request):
+    return render(request, 'app1/showOriginal.html', context)
+
+def improve_document(request, document_id):
     if request.method == 'POST':
         # Get the article text from the form data
         article_text = request.POST.get('extracted_text', '')
+
+        document = get_object_or_404(Document, id=document_id, user=request.user)
+        original_text = document.content.original_text
 
         # Preprocessing steps
 
@@ -155,8 +159,25 @@ def improve_document(request):
         summary = ' '.join(summary_sentences)
         output_text = re.sub(r'\W', ' ', str(summary))
 
+        # Update the document with improved text
+        document.content.improved_text = summary
+        document.content.save()
+        document.status = 'Improved'
+        document.save()
+
         messages.success(request, 'Summary Generated Successfully !')
 
         # Passing both original_text and improved_text. Note both first and second argument are determined within this function
-        return render(request, 'app1/showSuggestions.html', {'original_text': article_text, 'improved_text': summary})
-        
+        return redirect('show_suggestions', document_id=document.id)
+    return render(request, 'base.html')
+
+
+@login_required
+def show_suggestions(request, document_id):
+    document = get_object_or_404(Document, id=document_id, user=request.user)
+    context = {
+        'document': document,
+        'original_text': document.content.original_text,
+        'improved_text': document.content.improved_text,
+    }
+    return render(request, 'app1/showSuggestions.html', context)
