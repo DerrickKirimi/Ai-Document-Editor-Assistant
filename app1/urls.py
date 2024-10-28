@@ -15,4 +15,6 @@ urlpatterns = [
     path('documents/<int:document_id>/improve/', views.improve_document, name='improve_document'),
     path('documents/<int:document_id>/suggestions/', views.show_suggestions, name='show_suggestions'),
     path('documents/<int:document_id>/accept/', views.accept_improvements, name='accept_improvements'),
+    path('documents/<int:document_id>/improved/', views.show_improved, name='show_improved'),
+    path('documents/<int:document_id>/export/', views.export_pdf, name='export_pdf'),
 ]

@@ -15,6 +15,9 @@ import os
 import docx2txt  # for DOCX files
 from PyPDF2 import PdfReader  # for PDF files
 
+from django.template.loader import render_to_string
+from weasyprint import HTML #To export pdf files
+
 import re
 import nltk
 #nltk.download('punkt')
@@ -207,7 +210,7 @@ def accept_improvements(request, document_id):
         document.save()
 
         messages.success(request, "Improvements have been accepted and saved successfully!")
-        return redirect('show_original', document_id=document.id)
+        return redirect('show_improved', document_id=document.id)
 
     # Handle GET requests if necessary
     context = {
@@ -217,3 +220,32 @@ def accept_improvements(request, document_id):
     }
 
     return render(request, 'app1/showSuggestions.html', context)
+
+@login_required
+def show_improved(request, document_id):
+    document = get_object_or_404(Document, id=document_id, user=request.user)
+    # Fetch the improved text from the content model
+    context = {
+        'improved_text': document.content.improved_text,  
+        'document': document,
+    }
+
+    return render(request, 'app1/showImproved.html', context)
+
+@login_required
+def export_pdf(request, document_id):
+    document = get_object_or_404(Document, id=document_id, user=request.user)
+
+    # Render the HTML for the PDF
+    context = {
+        'improved_text': document.content.improved_text,
+        'document': document,
+    }
+    html_string = render_to_string('app1/pdf_template.html', context)
+
+    # Generate PDF
+    pdf = HTML(string=html_string).write_pdf()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{document.id}_improved.pdf"'
+    return response
