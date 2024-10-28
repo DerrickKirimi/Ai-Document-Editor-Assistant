@@ -92,3 +92,4 @@ CREATE INDEX "app1_document_user_id_de3be396" ON "app1_document" ("user_id");
 COMMIT;
 First include this in your settings.py CRISPY_TEMPLATE_PACK = 'bootstrap4'
 After doing that you might encounter a challenge that the template does not exist. If that occurs, make sure you have crispy-bootstrap installed - pip install crispy-bootstrap4 and add 'crispy_bootstrap4' to your list of INSTALLED_APPS.
+pip install weasyprint
