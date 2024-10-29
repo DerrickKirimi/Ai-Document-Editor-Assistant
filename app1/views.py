@@ -118,11 +118,15 @@ def upload_document(request):
 @login_required
 def show_original(request, document_id):
     document = get_object_or_404(Document, id=document_id, user=request.user)
+    if request.method == 'POST':
+        # Save the edited original text
+        document.content.original_text = request.POST.get('extracted_text', '')
+        document.content.save()
+
     context = {
         'document': document,
         'original_text': document.content.original_text,
     }
-
     return render(request, 'app1/showOriginal.html', context)
 
 def improve_nltk(article_text):
@@ -171,13 +175,23 @@ def improve_t5(text):
     
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Document
+import os
+
 @login_required
 def improve_document(request, document_id):
+    # Retrieve the document based on the provided ID
+    document = get_object_or_404(Document, id=document_id, user=request.user)
+
     if request.method == 'POST':
         article_text = request.POST.get('extracted_text', '')
-        document = get_object_or_404(Document, id=document_id, user=request.user)
+
         model_type = os.getenv('IMPROVE_MODEL', 'nltk')
 
+        # Determine which model to use for improvement
         if model_type == 'nltk':
             improved_text = improve_nltk(article_text)
         elif model_type == 't5':
@@ -186,15 +200,23 @@ def improve_document(request, document_id):
             messages.error(request, 'Invalid model type specified.')
             return redirect('home')
 
+        # Save the improved text to the document's content
         document.content.improved_text = improved_text
         document.content.save()
+
+        # Update the document status
         document.status = 'Improved'
         document.save()
 
         messages.success(request, 'Improvements Generated Successfully!')
         return redirect('show_suggestions', document_id=document.id)
 
-    return render(request, 'base.html')
+    # If GET request, return the original text for rendering
+    return render(request, 'app1/showOriginal.html', {
+        'document': document,
+        'original_text': document.content.original_text,  # Ensure original text is available
+        'messages': messages.get_messages(request),  # Pass messages for notification
+    })
 
 @login_required
 def show_suggestions(request, document_id):
