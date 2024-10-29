@@ -31,7 +31,7 @@
         <form method="post" action="{% url 'improve_document' document_id=document.id %}">
           {% csrf_token %}
           <div class="textarea-container">
-              <textarea name="extracted_text" rows="12">{{ original_text }}</textarea>
+              <textarea name="extracted_text" rows="12">{{ original_text|safe }}</textarea>
           </div>
           <br>
           <button type="submit" class="custom-btn">Improve</button>

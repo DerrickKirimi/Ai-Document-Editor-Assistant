@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponse
 # For Flash Messages
 from django.contrib import messages
+import bleach
 
 from .models import Document, Content
 from django.utils import timezone
@@ -118,14 +119,22 @@ def upload_document(request):
 @login_required
 def show_original(request, document_id):
     document = get_object_or_404(Document, id=document_id, user=request.user)
+    
     if request.method == 'POST':
-        # Save the edited original text
+        # Save the edited original text from CKEditor
         document.content.original_text = request.POST.get('extracted_text', '')
         document.content.save()
 
+        # Redirect to show_suggestions after saving the original text
+        return redirect('show_suggestions', document_id=document.id)
+        
+        # Optionally, add a success message
+        messages.success(request, 'Document updated successfully!')
+
+    # Prepare context with the current original text
     context = {
         'document': document,
-        'original_text': document.content.original_text,
+        'original_text': document.content.original_text,  # Ensure you're pulling the latest saved text
     }
     return render(request, 'app1/showOriginal.html', context)
 
@@ -174,12 +183,6 @@ def improve_t5(text):
     )
     
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from .models import Document
-import os
 
 @login_required
 def improve_document(request, document_id):
@@ -269,13 +272,19 @@ def show_improved(request, document_id):
 
     return render(request, 'app1/showImproved.html', context)
 
+def clean_html(html):
+    return bleach.clean(html, strip=True)
+
 @login_required
 def export_pdf(request, document_id):
     document = get_object_or_404(Document, id=document_id, user=request.user)
 
+    # Clean the improved text
+    cleaned_text = clean_html(document.content.improved_text)
+
     # Render the HTML for the PDF
     context = {
-        'improved_text': document.content.improved_text,
+        'improved_text': cleaned_text,
         'document': document,
     }
     html_string = render_to_string('app1/pdf_template.html', context)

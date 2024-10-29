@@ -8,6 +8,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/show.css' %}">
+    <script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>
     {% block title %}
       <title>Document Suggestions</title>
     {% endblock title %}
@@ -36,12 +37,12 @@
               <td style="text-align: center; padding-left: 350px; padding-right: 150px;">
                   <h3>Improved Text</h3>
               </td>
-          </tr>
-        </table>
+            </tr>
+          </table>
 
-          <div class="textarea-container">
-              <textarea name="original_text" rows="12" readonly>{{ original_text }}</textarea>
-              <textarea name="improved_text" rows="12">{{ improved_text }}</textarea>
+          <div class="textarea-container" style="display: flex; justify-content: space-around;">
+            <textarea name="original_text" rows="1" readonly oninput="autoResize(this)">{{ original_text|safe }}</textarea>
+            <textarea name="improved_text" rows="1" oninput="autoResize(this)">{{ improved_text }}</textarea>            
           </div>
           
           <br>
@@ -50,8 +51,34 @@
         <br>
     </div>
     {% endblock %}
+    
     {% block script %}
     <script>
+        // Initialize CKEditor for both text areas
+        ClassicEditor
+            .create(document.querySelector('textarea[name="original_text"]'))
+            .catch(error => {
+                console.error(error);
+            });
+        
+        ClassicEditor
+            .create(document.querySelector('textarea[name="improved_text"]'))
+            .catch(error => {
+                console.error(error);
+            });
+        
+        // Auto-resize text areas
+        function autoResize(textarea) {
+            // Reset height to enable shrink
+            textarea.style.height = 'auto'; 
+            // Set the height to scroll height
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        // Initial resize for existing content
+        document.querySelectorAll('textarea').forEach(autoResize);
+          
+
         // Automatically close notifications after 5 seconds
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
@@ -60,12 +87,15 @@
                     notification.remove();
                 });
             }, 2000); // Adjust the time in milliseconds (e.g., 2000 for 2 seconds)
-          // Scroll to the text section
-          var textSection = document.querySelector('.container');
+
+            // Scroll to the text section
+            var textSection = document.querySelector('.container');
             if (textSection) {
                 textSection.scrollIntoView({ behavior: 'smooth' });
             }
         });
+
+        
     </script>
     {% endblock script %}
   </body>

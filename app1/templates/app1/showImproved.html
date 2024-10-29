@@ -8,6 +8,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/show.css' %}">
+    <script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>
     {% block title %}
       <title>Improved Text</title>
     {% endblock title %}
@@ -29,28 +30,35 @@
         <form method="get" action="{% url 'export_pdf' document_id=document.id %}">
           {% csrf_token %}
           <div class="textarea-container">
-          <textarea name="improved_text" rows="12" readonly>{{ improved_text }}</textarea>
+              <textarea name="improved_text" rows="12" readonly>{{ improved_text|safe }}</textarea>
           </div>
           <br>
           <!-- Button Container for Home and Export to PDF -->
-        <div class="button-container">
-          <form action="{% url 'export_pdf' document_id=document.id %}" method="post" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" class="custom-btn">Export to PDF</button>
-          </form>
-          <form action="{% url 'main' %}" method="post" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" class="custom-btn">Home</button>
-          </form>
-          
-        </div>
-        <br>
+          <div class="button-container">
+            <form action="{% url 'export_pdf' document_id=document.id %}" method="post" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="custom-btn">Export to PDF</button>
+            </form>
+            <form action="{% url 'main' %}" method="post" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="custom-btn">Home</button>
+            </form>
+          </div>
+          <br>
+        </form>
     </div>
 
     {% endblock %}
     
     {% block script %}
     <script>
+        // Initialize CKEditor for the improved text area
+        ClassicEditor
+            .create(document.querySelector('textarea[name="improved_text"]'))
+            .catch(error => {
+                console.error(error);
+            });
+
         // Automatically close notifications after 5 seconds
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Improved Document</title>
+    <style>
+        /* Sample styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ document.title }}</h1>
+    <div>
+        {{ improved_text|safe }}  <!-- Use 'safe' to render HTML -->
+    </div>
+</body>
+</html>

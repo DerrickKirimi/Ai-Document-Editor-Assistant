@@ -81,28 +81,26 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* New styles for side-by-side text areas */
 .textarea-container {
   display: flex;
-  gap: 10px;
-  justify-content: center; /* Centers textareas within the form */
-  width: 100%;
-  //max-width: 800px; /* Optional: Set a max width for the text areas container */
-  margin: 0 auto;
+  gap: 10px; /* Space between textareas */
+  justify-content: center; /* Center the textareas */
+  width: 100%; /* Full width of the container */
 }
 
 .textarea-container textarea {
-  flex: 1;
-  width: 50%;
-  //max-width: 50%; /* Each textarea takes up half the width of the container */
+  width: 400px; /* Set a fixed width for each textarea */
+  height: auto; /* Allow height to adjust based on content */
   padding: 12px;
   box-sizing: border-box;
   font-size: 1.6rem;
   margin-bottom: 20px;
-  resize: none;
+  resize: vertical; /* Allow vertical resizing if needed */
   border: 1px solid #ccc;
   transition: border 0.3s ease;
 }
+
+
 
 
 textarea:hover {
