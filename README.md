@@ -93,3 +93,5 @@ COMMIT;
 First include this in your settings.py CRISPY_TEMPLATE_PACK = 'bootstrap4'
 After doing that you might encounter a challenge that the template does not exist. If that occurs, make sure you have crispy-bootstrap installed - pip install crispy-bootstrap4 and add 'crispy_bootstrap4' to your list of INSTALLED_APPS.
 pip install weasyprint
+pip3 install torch --index-url https://download.pytorch.org/whl/cpu
+python -c "import torch; print(torch.__version__)"
