@@ -32,8 +32,18 @@
           <textarea name="improved_text" rows="12" readonly>{{ improved_text }}</textarea>
           </div>
           <br>
-          <button type="submit" class="custom-btn">Export to PDF</button>
-        </form>
+          <!-- Button Container for Home and Export to PDF -->
+        <div class="button-container">
+          <form action="{% url 'export_pdf' document_id=document.id %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="custom-btn">Export to PDF</button>
+          </form>
+          <form action="{% url 'main' %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="custom-btn">Home</button>
+          </form>
+          
+        </div>
         <br>
     </div>
 
