@@ -7,6 +7,18 @@ import sys
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Project.settings')
+    
+    # Check for the model argument
+    model_type = 'nltk'  # default
+    if '--model' in sys.argv:
+        model_index = sys.argv.index('--model') + 1
+        if model_index < len(sys.argv):
+            model_type = sys.argv[model_index]
+            sys.argv.remove('--model')
+            sys.argv.remove(model_type)
+
+    os.environ['IMPROVE_MODEL'] = model_type
+    
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
