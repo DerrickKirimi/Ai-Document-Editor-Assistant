@@ -125,62 +125,33 @@ def show_original(request, document_id):
     }
 
     return render(request, 'app1/showOriginal.html', context)
-    
-def improve_nltk(request, document_id):
-    if request.method == 'POST':
-        # Get the article text from the form data
-        article_text = request.POST.get('extracted_text', '')
 
-        document = get_object_or_404(Document, id=document_id, user=request.user)
-        original_text = document.content.original_text
+def improve_nltk(article_text):
+    # Preprocessing
+    article_text = re.sub(r'\[[0-9]*\]', ' ', article_text)
+    article_text = re.sub(r'\s+', ' ', article_text)
+    formatted_article_text = re.sub('[^a-zA-Z]', ' ', article_text)
+    formatted_article_text = re.sub(r'\s+', ' ', formatted_article_text)
+    sentence_list = nltk.sent_tokenize(article_text)
+    stopwords = nltk.corpus.stopwords.words('english')
 
-        # Preprocessing steps
+    # Word frequency and scoring sentences
+    word_frequencies = {}
+    for word in nltk.word_tokenize(formatted_article_text):
+        if word not in stopwords:
+            word_frequencies[word] = word_frequencies.get(word, 0) + 1
+    maximum_frequency = max(word_frequencies.values())
+    for word in word_frequencies.keys():
+        word_frequencies[word] /= maximum_frequency
 
-        # Removing Square Brackets and Extra Spaces
-        article_text = re.sub(r'\[[0-9]*\]', ' ', article_text)
-        article_text = re.sub(r'\s+', ' ', article_text)
-        # Removing special characters and digits
-        formatted_article_text = re.sub('[^a-zA-Z]', ' ', article_text )
-        formatted_article_text = re.sub(r'\s+', ' ', formatted_article_text)
-        sentence_list = nltk.sent_tokenize(article_text)
-        stopwords = nltk.corpus.stopwords.words('english')
-
-        word_frequencies = {}
-        for word in nltk.word_tokenize(formatted_article_text):
-            if word not in stopwords:
-                if word not in word_frequencies.keys():
-                    word_frequencies[word] = 1
-                else:
-                    word_frequencies[word] += 1
-            maximum_frequncy = max(word_frequencies.values())
-        for word in word_frequencies.keys():
-            word_frequencies[word] = (word_frequencies[word]/maximum_frequncy)
-            sentence_scores = {}
-        for sent in sentence_list:
-            for word in nltk.word_tokenize(sent.lower()):
-                if word in word_frequencies.keys():
-                    if len(sent.split(' ')) < 30:
-                        if sent not in sentence_scores.keys():
-                            sentence_scores[sent] = word_frequencies[word]
-                        else:
-                            sentence_scores[sent] += word_frequencies[word]
-        import heapq
-        summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
-
-        summary = ' '.join(summary_sentences)
-        output_text = re.sub(r'\W', ' ', str(summary))
-
-        # Update the document with improved text
-        document.content.improved_text = summary
-        document.content.save()
-        document.status = 'Improved'
-        document.save()
-
-        messages.success(request, 'Improvements Generated Successfully !')
-
-        # Passing both original_text and improved_text. Note both first and second argument are determined within this function
-        return redirect('show_suggestions', document_id=document.id)
-    return render(request, 'base.html')
+    sentence_scores = {}
+    for sent in sentence_list:
+        for word in nltk.word_tokenize(sent.lower()):
+            if word in word_frequencies and len(sent.split()) < 30:
+                sentence_scores[sent] = sentence_scores.get(sent, 0) + word_frequencies[word]
+                
+    summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
+    return ' '.join(summary_sentences)
 
 # Load T5 model and tokenizer once when the module is imported
 model_name = "t5-small"
@@ -208,37 +179,44 @@ def paraphrase_text(input_text, max_length=100, num_return_sequences=1):
     paraphrased_texts = [tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
     return paraphrased_texts[0]  # Return the first paraphrased version
 
-def improve_t5(request, document_id):
-    """Improve the document using paraphrasing."""
+def improve_t5(text):
+    input_text = f"paraphrase: {text} </s>"
+    inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
+    
+    outputs = model.generate(
+        inputs,
+        max_length=100,
+        num_return_sequences=1,
+        num_beams=5,
+        early_stopping=True
+    )
+    
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+@login_required
+def improve_document(request, document_id):
     if request.method == 'POST':
-        # Get the article text from the form data
         article_text = request.POST.get('extracted_text', '')
-
         document = get_object_or_404(Document, id=document_id, user=request.user)
-        original_text = document.content.original_text
+        model_type = os.getenv('IMPROVE_MODEL', 'nltk')
 
-        # Preprocessing: removing square brackets, extra spaces, special characters, and digits
-        article_text = re.sub(r'\[[0-9]*\]', ' ', article_text)
-        article_text = re.sub(r'\s+', ' ', article_text)
-        formatted_article_text = re.sub('[^a-zA-Z]', ' ', article_text)
-        formatted_article_text = re.sub(r'\s+', ' ', formatted_article_text)
+        if model_type == 'nltk':
+            improved_text = improve_with_nltk(article_text)
+        elif model_type == 't5':
+            improved_text = improve_with_t5(article_text)
+        else:
+            messages.error(request, 'Invalid model type specified.')
+            return redirect('home')
 
-        # Generate improved text using T5-Small paraphrasing
-        improved_text = paraphrase_text(formatted_article_text)
-
-        # Update the document with improved text
         document.content.improved_text = improved_text
         document.content.save()
         document.status = 'Improved'
         document.save()
 
         messages.success(request, 'Improvements Generated Successfully!')
-
-        # Redirect to show suggestions with the original and improved text
         return redirect('show_suggestions', document_id=document.id)
 
     return render(request, 'base.html')
-
 
 @login_required
 def show_suggestions(request, document_id):
