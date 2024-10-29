@@ -27,7 +27,6 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, sent_tokenize
 import heapq
 from django.contrib import messages
-from transformers import T5ForConditionalGeneration, T5Tokenizer
 
 def register(request):
     """
@@ -153,33 +152,12 @@ def improve_nltk(article_text):
     summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
     return ' '.join(summary_sentences)
 
-# Load T5 model and tokenizer once when the module is imported
-model_name = "t5-small"
-tokenizer = T5Tokenizer.from_pretrained(model_name)
-model = T5ForConditionalGeneration.from_pretrained(model_name)
-
-def paraphrase_text(input_text, max_length=100, num_return_sequences=1):
-    """Generate paraphrased text using T5-Small."""
-    # Add task prefix for paraphrasing
-    input_text = f"paraphrase: {input_text} </s>"
-    
-    # Encode input text
-    inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
-    
-    # Generate paraphrase
-    outputs = model.generate(
-        inputs,
-        max_length=max_length,
-        num_return_sequences=num_return_sequences,
-        num_beams=5,
-        early_stopping=True
-    )
-    
-    # Decode the outputs
-    paraphrased_texts = [tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
-    return paraphrased_texts[0]  # Return the first paraphrased version
-
 def improve_t5(text):
+    from transformers import T5ForConditionalGeneration, T5Tokenizer
+    # Load T5 model and tokenizer once when the module is imported
+    model_name = "t5-small"
+    tokenizer = T5Tokenizer.from_pretrained(model_name)
+    model = T5ForConditionalGeneration.from_pretrained(model_name)
     input_text = f"paraphrase: {text} </s>"
     inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
     
