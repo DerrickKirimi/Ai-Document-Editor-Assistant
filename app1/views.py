@@ -201,9 +201,9 @@ def improve_document(request, document_id):
         model_type = os.getenv('IMPROVE_MODEL', 'nltk')
 
         if model_type == 'nltk':
-            improved_text = improve_with_nltk(article_text)
+            improved_text = improve_nltk(article_text)
         elif model_type == 't5':
-            improved_text = improve_with_t5(article_text)
+            improved_text = improve_t5(article_text)
         else:
             messages.error(request, 'Invalid model type specified.')
             return redirect('home')
