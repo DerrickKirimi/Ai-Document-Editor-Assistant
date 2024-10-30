@@ -3,8 +3,10 @@
 {% block content %}
 
     <h2 class="text-md-center">You Have Been Logged Out!</h2>
-    <div class="border-top pt-3 text-center">
-        <a href="{% url 'login' %}" class="">Login Again</a>      
-    </div>
-
+    <div class="login-submit-btn">
+        <form action="{% url 'login' %}" method="post" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="custom-btn">Log In</button>
+        </form>
+      </div>
 {% endblock %}

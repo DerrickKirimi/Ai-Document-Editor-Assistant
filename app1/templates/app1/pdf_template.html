@@ -1,25 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>{{ document.id }} - Improved Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document PDF</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            line-height: 1.5; /* Adjust line spacing */
+            color: #333; /* Text color */
         }
-        h1 {
-            text-align: center;
-        }
-        .content {
+
+        h1, h2, h3, h4 {
             margin-top: 20px;
+            margin-bottom: 10px;
+            color: #2c3e50; /* Heading color */
         }
+
+        p {
+            margin: 10px 0; /* Margin between paragraphs */
+        }
+
+        ul {
+            margin: 10px 0; /* Margin above and below lists */
+            padding-left: 20px; /* Indent lists */
+        }
+
+        li {
+            margin-bottom: 5px; /* Space between list items */
+        }
+
+        strong {
+            font-weight: bold; /* Bold text */
+        }
+
+        /* Add more styles as needed */
     </style>
 </head>
 <body>
-    <h1>Improved Document - ID: {{ document.id }}</h1>
-    <div class="content">
-        <p>{{ improved_text }}</p>
+    <h1>Document</h1> <!-- You can dynamically insert a title -->
+    <div>
+        {{ improved_text|safe }} <!-- Render the improved text with HTML -->
     </div>
 </body>
 </html>

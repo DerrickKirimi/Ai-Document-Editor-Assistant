@@ -23,6 +23,10 @@
                     {% if user.is_authenticated %}
                         <div class="welcome-logout">
                             <span id="welcome-user">Welcome, {{ request.user.username }}</span>
+                            <form action="{% url 'main' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="custom-btn">Home</button>
+                            </form>
                             <form action="{% url 'logout' %}" method="post" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="logout-btn">Logout</button>

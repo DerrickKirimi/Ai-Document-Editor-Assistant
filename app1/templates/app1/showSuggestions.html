@@ -18,6 +18,7 @@
     {% block content %}
     <div class="container">
         <h2 class="center">Improvement Suggestion</h2>
+        
         <!-- Notification Container -->
         <div class="notification-container">
           {% for message in messages %}
@@ -26,28 +27,27 @@
               </div>
           {% endfor %}
         </div>
+        
         <form method="post" action="{% url 'accept_improvements' document_id=document.id %}">
           {% csrf_token %}
-
-          <table>
-            <tr>
-              <td style="text-align: center; padding-left: 250px; padding-right: 50px;">
-                  <h3>Original Text</h3>
-              </td>
-              <td style="text-align: center; padding-left: 350px; padding-right: 150px;">
-                  <h3>Improved Text</h3>
-              </td>
-            </tr>
-          </table>
-
-          <div class="textarea-container" style="display: flex; justify-content: space-around;">
-            <textarea name="original_text" rows="1" readonly oninput="autoResize(this)">{{ original_text|safe }}</textarea>
-            <textarea name="improved_text" rows="1" oninput="autoResize(this)">{{ improved_text }}</textarea>            
-          </div>
+          
+          <div class="textarea-container" style="display: flex; gap: 20px; align-items: flex-start;">
+            <div class="text-area" style="flex: 1;">
+                <h3>Original Text</h3>
+                <textarea name="original_text" rows="10" readonly>{{ original_text|safe }}</textarea>
+            </div>
+            <div class="text-area" style="flex: 1;">
+                <h3>Improved Text</h3>
+                <textarea name="improved_text" rows="10">{{ improved_text|safe }}</textarea>
+            </div>
+        </div>
+        
+        
           
           <br>
           <button type="submit" class="custom-btn">Accept</button>
-        </form>       
+        </form>
+        
         <br>
     </div>
     {% endblock %}
@@ -66,18 +66,6 @@
             .catch(error => {
                 console.error(error);
             });
-        
-        // Auto-resize text areas
-        function autoResize(textarea) {
-            // Reset height to enable shrink
-            textarea.style.height = 'auto'; 
-            // Set the height to scroll height
-            textarea.style.height = textarea.scrollHeight + 'px';
-        }
-
-        // Initial resize for existing content
-        document.querySelectorAll('textarea').forEach(autoResize);
-          
 
         // Automatically close notifications after 5 seconds
         document.addEventListener('DOMContentLoaded', function () {
@@ -94,8 +82,6 @@
                 textSection.scrollIntoView({ behavior: 'smooth' });
             }
         });
-
-        
     </script>
     {% endblock script %}
   </body>

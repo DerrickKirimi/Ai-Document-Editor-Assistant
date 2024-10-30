@@ -275,16 +275,54 @@ def show_improved(request, document_id):
 def clean_html(html):
     return bleach.clean(html, strip=True)
 
+import io
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from bs4 import BeautifulSoup
+
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+from weasyprint import HTML
+from .models import Document
+from django.contrib.auth.decorators import login_required
+from bs4 import BeautifulSoup
+
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+from weasyprint import HTML
+from .models import Document
+from django.contrib.auth.decorators import login_required
+from bs4 import BeautifulSoup
+
 @login_required
 def export_pdf(request, document_id):
     document = get_object_or_404(Document, id=document_id, user=request.user)
 
-    # Clean the improved text
-    cleaned_text = clean_html(document.content.improved_text)
+    # Get the HTML content from the improved text
+    html_content = document.content.improved_text
+
+    # Use BeautifulSoup to clean and modify the HTML
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # Optional: Clean specific tags, remove unwanted attributes, or modify structure
+    for tag in soup.find_all():
+        # Example: Strip unwanted attributes like class and style
+        for attr in ["class", "style"]:
+            if attr in tag.attrs:
+                del tag[attr]
+
+    # Maintain new lines by replacing <br> tags and ensuring paragraph tags are used
+    for br in soup.find_all('br'):
+        br.insert_before('\n')  # Insert a new line before <br> tags
+
+    # Convert back to a string while keeping the text formatted properly
+    cleaned_html = soup.prettify()  # Use prettify for structured HTML
 
     # Render the HTML for the PDF
     context = {
-        'improved_text': cleaned_text,
+        'improved_text': cleaned_html,  # Use cleaned HTML for rendering
         'document': document,
     }
     html_string = render_to_string('app1/pdf_template.html', context)
@@ -295,3 +333,4 @@ def export_pdf(request, document_id):
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{document.id}_improved.pdf"'
     return response
+
