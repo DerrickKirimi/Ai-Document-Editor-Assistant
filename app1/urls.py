@@ -2,24 +2,32 @@ from django.urls import path
 from . import views
 from django.contrib.auth.views import LoginView, LogoutView
 
-from .views import (main, register, logout_user)
 urlpatterns = [
     path('', views.main, name='main'),
-    path("login/", LoginView.as_view(template_name="app1/login.html"),
-        name="login"),
-    path("logout/", LogoutView.as_view(template_name="app1/logout.html"),
-        name="logout"),
-    path("register/", register, name="register"),
-    path('UPLOAD', views.upload_document, name='upload_document'),
-    path('documents/<int:document_id>/original/', views.show_original, name='show_original'),
-    path('documents/<int:document_id>/improve/', views.improve_document, name='improve_document'),
-    path('documents/<int:document_id>/suggestions/', views.show_suggestions, name='show_suggestions'),
-    path('documents/<int:document_id>/accept/', views.accept_improvements, name='accept_improvements'),
-    path('documents/<int:document_id>/improved/', views.show_improved, name='show_improved'),
-    path('documents/<int:document_id>/export/', views.export_pdf, name='export_pdf'),
-    path('documents/', views.list_documents, name='list_documents'),
+    path("login/", LoginView.as_view(template_name="app1/login.html"), name="login"),
+    path("logout/", LogoutView.as_view(template_name="app1/logout.html"), name="logout"),
+    path("register/", views.register, name="register"),
+    
+    # Document management views
+    path('UPLOAD', views.UploadDocumentView.as_view(), name='upload_document'),
+    path('documents/<int:document_id>/original/', views.ShowOriginalView.as_view(), name='show_original'),
+    path('documents/<int:document_id>/improve/', views.ImproveDocumentView.as_view(), name='improve_document'),
+    path('documents/<int:document_id>/suggestions/', views.ShowSuggestionsView.as_view(), name='show_suggestions'),
+    path('documents/<int:document_id>/accept/', views.AcceptImprovementsView.as_view(), name='accept_improvements'),
+    path('documents/<int:document_id>/improved/', views.ShowImprovedView.as_view(), name='show_improved'),
+    path('documents/<int:document_id>/export/', views.ExportPDFView.as_view(), name='export_pdf'),
+    path('documents/', views.ListDocumentsView.as_view(), name='list_documents'),
     path('documents/create/', views.create_document, name='create_document'),
     path('documents/<int:document_id>/', views.view_document, name='view_document'),
     path('documents/<int:document_id>/edit/', views.update_document, name='update_document'),
     path('documents/<int:document_id>/delete/', views.delete_document, name='delete_document'),
+
+    # New API Endpoints
+    path('api/upload/', views.UploadDocumentView.as_view(), name='api_upload_document'),
+    path('api/documents/<int:document_id>/original/', views.ShowOriginalView.as_view(), name='api_show_original'),
+    path('api/documents/<int:document_id>/improve/', views.ImproveDocumentView.as_view(), name='api_improve_document'),
+    path('api/documents/<int:document_id>/suggestions/', views.ShowSuggestionsView.as_view(), name='api_show_suggestions'),
+    path('api/documents/<int:document_id>/accept/', views.AcceptImprovementsView.as_view(), name='api_accept_improvements'),
+    path('api/documents/<int:document_id>/improved/', views.ShowImprovedView.as_view(), name='api_show_improved'),
+    path('api/documents/<int:document_id>/export/', views.ExportPDFView.as_view(), name='api_export_pdf'),
 ]
