@@ -222,3 +222,31 @@ nav .page-item {
     border-radius: 4px;
     margin: 0 1px;
 }
+
+/* styles.css */
+
+/* Common button styles */
+.button {
+    background-color: #4CAF50; /* Primary color */
+    color: white;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 5px 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #45a049; /* Darker on hover */
+}
+
+/* Smaller button variant */
+.button-small {
+    padding: 6px 10px;
+    font-size: 12px;
+}

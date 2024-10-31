@@ -1,25 +1,32 @@
 {% extends "app1/base.html" %}
 {% block content %}
   <h2>My Documents</h2>
-  <a href="{% url 'create_document' %}">Create New Document</a>
+  <a href="{% url 'create_document' %}" class="button">Create New Document</a>
   <ul>
     {% for document in page_obj %}
       <li>
-        <a href="{% url 'view_document' document.id %}">Document {{ document.id }}</a> - {{ document.upload_date }}
-        <a href="{% url 'update_document' document.id %}">Edit</a> |
-        <a href="{% url 'delete_document' document.id %}">Delete</a>
+        <a href="{% url 'view_document' document.id %}">Document {{ document.id }}</a>
+        - {{ document.upload_date }}
+        <a href="{% url 'update_document' document.id %}" class="button-small">Edit</a> |
+        <a href="{% url 'delete_document' document.id %}" class="button-small">Delete</a>
       </li>
     {% endfor %}
   </ul>
   <div class="pagination">
-    {% if page_obj.has_previous %}
-      <a href="?page=1">&laquo; first</a>
-      <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-    {% endif %}
-    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-    {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}">next</a>
-      <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-    {% endif %}
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="button-small">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="button-small">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="button-small">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="button-small">last &raquo;</a>
+        {% endif %}
+    </span>
   </div>
 {% endblock %}

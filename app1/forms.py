@@ -12,6 +12,19 @@ class UserRegistrationForm(UserCreationForm):
         model = UserModel
         fields = ["username", "password1", "password2"]
 
+class DocumentForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ['status'] 
+
+class ContentForm(forms.ModelForm):
+    original_text = forms.CharField(widget=forms.Textarea, required=True, label="Original Text")
+    improved_text = forms.CharField(widget=forms.Textarea, required=False, label="Improved Text")
+
+    class Meta:
+        model = Content
+        fields = ['original_text', 'improved_text']
+
 
 
         

@@ -17,4 +17,9 @@ urlpatterns = [
     path('documents/<int:document_id>/accept/', views.accept_improvements, name='accept_improvements'),
     path('documents/<int:document_id>/improved/', views.show_improved, name='show_improved'),
     path('documents/<int:document_id>/export/', views.export_pdf, name='export_pdf'),
+    path('documents/', views.list_documents, name='list_documents'),
+    path('documents/create/', views.create_document, name='create_document'),
+    path('documents/<int:document_id>/', views.view_document, name='view_document'),
+    path('documents/<int:document_id>/edit/', views.update_document, name='update_document'),
+    path('documents/<int:document_id>/delete/', views.delete_document, name='delete_document'),
 ]

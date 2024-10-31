@@ -29,6 +29,10 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 import heapq
 from django.contrib import messages
 
+import io
+from bs4 import BeautifulSoup
+from django.core.paginator import Paginator
+
 def register(request):
     """
     User Registration form
@@ -275,27 +279,6 @@ def show_improved(request, document_id):
 def clean_html(html):
     return bleach.clean(html, strip=True)
 
-import io
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from bs4 import BeautifulSoup
-
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from django.shortcuts import get_object_or_404
-from weasyprint import HTML
-from .models import Document
-from django.contrib.auth.decorators import login_required
-from bs4 import BeautifulSoup
-
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from django.shortcuts import get_object_or_404
-from weasyprint import HTML
-from .models import Document
-from django.contrib.auth.decorators import login_required
-from bs4 import BeautifulSoup
-
 @login_required
 def export_pdf(request, document_id):
     document = get_object_or_404(Document, id=document_id, user=request.user)
@@ -333,4 +316,75 @@ def export_pdf(request, document_id):
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{document.id}_improved.pdf"'
     return response
+
+from .forms import DocumentForm, ContentForm
+
+@login_required
+def list_documents(request):
+    documents = Document.objects.filter(user=request.user).order_by('-upload_date')
+    paginator = Paginator(documents, 5)  # Show 5 documents per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'app1/list_documents.html', {'page_obj': page_obj})
+
+
+def create_document(request):
+    if request.method == 'POST':
+        document_form = DocumentForm(request.POST)
+        content_form = ContentForm(request.POST)
+        
+        if document_form.is_valid() and content_form.is_valid():
+            document = document_form.save(commit=False)
+            document.user = request.user  # Assuming Document has a foreign key to User
+            document.save()
+
+            content = content_form.save(commit=False)
+            content.document = document
+            content.save()
+
+            messages.success(request, 'Document created successfully.')
+            return redirect('list_documents')
+    else:
+        document_form = DocumentForm()
+        content_form = ContentForm()
+
+    return render(request, 'app1/create_document.html', {
+        'document_form': document_form,
+        'content_form': content_form
+    })
+
+@login_required
+def update_document(request, document_id):
+    document = get_object_or_404(Document, id=document_id, user=request.user)
+    content = get_object_or_404(Content, document=document)
+    
+    if request.method == 'POST':
+        document_form = DocumentForm(request.POST, instance=document)
+        content_form = ContentForm(request.POST, instance=content)
+        if document_form.is_valid() and content_form.is_valid():
+            document_form.save()
+            content_form.save()
+            messages.success(request, 'Document updated successfully.')
+            return redirect('list_documents')
+    else:
+        document_form = DocumentForm(instance=document)
+        content_form = ContentForm(instance=content)
+    return render(request, 'app1/update_document.html', {
+        'document_form': document_form, 'content_form': content_form, 'document': document
+    })
+
+@login_required
+def delete_document(request, document_id):
+    document = get_object_or_404(Document, id=document_id, user=request.user)
+    if request.method == 'POST':
+        document.delete()
+        messages.success(request, 'Document deleted successfully.')
+        return redirect('list_documents')
+    return render(request, 'app1/delete_document.html', {'document': document})
+
+@login_required
+def view_document(request, document_id):
+    document = get_object_or_404(Document, id=document_id, user=request.user)
+    content = document.content
+    return render(request, 'app1/view_document.html', {'document': document, 'content': content})
 
