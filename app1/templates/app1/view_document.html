@@ -1,0 +1,9 @@
+{% extends "app1/base.html" %}
+{% block content %}
+  <h2>Document Details</h2>
+  <p>Status: {{ document.status }}</p>
+  <h3>Original Text</h3>
+  <p>{{ content.original_text }}</p>
+  <h3>Improved Text</h3>
+  <p>{{ content.improved_text }}</p>
+{% endblock %}
