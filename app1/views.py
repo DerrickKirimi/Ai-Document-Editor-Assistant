@@ -81,6 +81,9 @@ def upload_document(request):
                 for chunk in uploaded_file.chunks():
                     destination.write(chunk)
 
+            # Set title based on filename without the extension
+            title = os.path.splitext(uploaded_file.name)[0]
+
             # Determine file format and extract text accordingly
             if uploaded_file.content_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
                 # DOCX file
@@ -228,12 +231,21 @@ def improve_document(request, document_id):
 @login_required
 def show_suggestions(request, document_id):
     document = get_object_or_404(Document, id=document_id, user=request.user)
+
+    if request.method == 'POST':
+        # Capture the improved text from the CKEditor field
+        improved_text = request.POST.get('improved_text', '')
+        document.content.improved_text = improved_text  # Save the improved text
+        document.content.save()  # Save the improved text to the Document
+        return redirect('show_improved', document_id=document.id)  # Redirect to improved view
+
     context = {
         'document': document,
-        'original_text': document.content.original_text,
-        'improved_text': document.content.improved_text,
+        'original_text': document.content.original_text,  # Access original text
+        'improved_text': document.content.improved_text,  # Access improved text
     }
     return render(request, 'app1/showSuggestions.html', context)
+
 
 @login_required
 def accept_improvements(request, document_id):
@@ -268,13 +280,20 @@ def accept_improvements(request, document_id):
 @login_required
 def show_improved(request, document_id):
     document = get_object_or_404(Document, id=document_id, user=request.user)
-    # Fetch the improved text from the content model
-    context = {
-        'improved_text': document.content.improved_text,  
-        'document': document,
-    }
 
+    if request.method == 'POST':
+        # Capture the final improved text from the CKEditor field
+        final_improved_text = request.POST.get('final_improved_text', '')
+        document.content.improved_text = final_improved_text  # Save the final improved text
+        document.content.save()  # Save changes to the Document
+        return redirect('show_improved', document_id=document.id)  # Redirect back to showImproved with updated text
+
+    context = {
+        'document': document,
+        'improved_text': document.content.improved_text,  # Display the improved text
+    }
     return render(request, 'app1/showImproved.html', context)
+
 
 def clean_html(html):
     return bleach.clean(html, strip=True)
