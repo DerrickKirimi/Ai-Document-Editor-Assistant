@@ -1,97 +1,94 @@
-# DocSummarizationTool
+# Document Assistant
 
-# Automatic Text Summarization Web Application
+Document Assistant is an AI-powered web application designed to help users edit, improve, and export their documents. The application offers a friendly user interface for document upload and editing, backed by natural language processing (NLP) capabilities. Users can view suggestions for document improvements, accept or reject changes, and export their final document as a PDF.
 
-This Django-based web application is designed to perform automatic text summarization on various document formats, including DOCX, PDF, and plain text files. The summarized text can be generated after uploading a document, and the application supports flash messages for user feedback.
+## Table of Contents
+
+- [Document Assistant](#document-assistant)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Technologies](#technologies)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Endpoints](#endpoints)
 
 ## Features
 
-- Supports DOCX, PDF, and plain text file formats
-- Flash messages for user feedback
-- Automatic text summarization using nltk and heapq libraries
+- **User Authentication**: Register, login, and logout functionality.
+- **Document Upload**: Upload documents for processing.
+- **NLP-Powered Improvements**: Apply NLP models (spaCy or Hugging Face) to suggest document enhancements.
+- **Side-by-Side Editing**: View and edit the original and improved documents side-by-side with CKEditor.
+- **Accept/Reject Suggestions**: Accept improvements or revert to original text.
+- **PDF Export**: Export the improved document to PDF.
 
-# Getting Started
+## Technologies
 
-## Clone the repository:
+- **Frontend**: HTML, CSS, JavaScript, CKEditor for editing interface
+- **Backend**: Python, Django
+- **NLP Models**: spaCy (default) or Hugging Face (optional via command-line argument)
 
-git clone https://github.com/nassrkhan/Automatic-Text-Summarization-Web-Application.git
+## Installation
 
-## Navigate to the project directory:
+1. **Clone the repository**:
 
-cd document-summarization
+   ```bash
+   git clone git@github.com:DerrickKirimi/Ai-DocumentDocument-Editor-Assistant.git
+   cd Ai-Document-Editor-Assistant
+   ```
 
-## Run the Django development server:
-
-python manage.py runserver
-Open your web browser and visit http://localhost:8000/ to access the application.
-
-Upload a document on the main page to extract text and view the summary on the following page.
-
-# File Structure
-
-summarization/views.py: Contains Django views for document upload and text summarization.
-media/: Temporary storage for uploaded files.
-templates/: HTML templates for rendering pages.
-
-# Acknowledgements
-
-Django
-nltk
-docx2txt
-PyPDF2
-
-## Prerequisites
-
-Make sure you have the following installed:
-
-- Python 3.x
-- Django
-- nltk (Natural Language Toolkit)
-- docx2txt
-- PyPDF2
-
-You can install the required Python packages using:
+2. **Create a virtual environment**:
 
 ```bash
-pip install django nltk docx2txt PyPDF2
-python -m nltk.downloader punkt stopwords wordnet
-
-
+python3 -m venv env
+source env/bin/activate  # For Linux/macOS
+env\Scripts\activate     # For Windows
 ```
 
-django-admin startproject projectname projectdir
+3. **Install dependencies**:
 
-python manage.py startapp appname
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-add models
+4. **Setup Database**:
 
-add 'appname.apps.AppnameConfig' to settings.py
-
-python manage.py makemigrations app1
-python manage.py sqlmigrate app1 0001
-
+```bash
 python manage.py migrate
+```
 
+5.**Create a superuser**:
 
+```bash
+python manage.py createsuperuser
+```
 
-python manage.py sqlmigrate app1 0001
-BEGIN;
-------
+6.**Run the server**:
 
--- Create model Document
-------------------------
+```bash
+python manage.py runserver
+```
+## Usage
 
-CREATE TABLE "app1_document" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "upload_date" datetime NOT NULL, "status" varchar(20) NOT NULL, "user_id" integer NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED);
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+- Login: Start by logging into the application (or register if you are a new user).
+- Upload a Document: Navigate to the Upload page and upload a document.
+- View and Edit: Review the original and suggested improvements in the side-by-side editor.
+- Accept/Reject Changes: Choose which improvements to keep.
+- Export: Download your improved document as a PDF.
 
--- Create model Content
------------------------
-
-CREATE TABLE "app1_content" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "original_text" text NOT NULL, "improved_text" text NULL, "document_id" bigint NOT NULL UNIQUE REFERENCES "app1_document" ("id") DEFERRABLE INITIALLY DEFERRED);
-CREATE INDEX "app1_document_user_id_de3be396" ON "app1_document" ("user_id");
-COMMIT;
-First include this in your settings.py CRISPY_TEMPLATE_PACK = 'bootstrap4'
-After doing that you might encounter a challenge that the template does not exist. If that occurs, make sure you have crispy-bootstrap installed - pip install crispy-bootstrap4 and add 'crispy_bootstrap4' to your list of INSTALLED_APPS.
-pip install weasyprint
-pip3 install torch --index-url https://download.pytorch.org/whl/cpu
-python -c "import torch; print(torch.__version__)"
+## Endpoints
+- / GET Home page
+- /login/ GET Login page
+- /logout/ GET Logout page
+- /register/ GET Registration page
+- /UPLOAD POST Upload a new document
+- /documents/<id>/original/ GET View the original document
+- /documents/<id>/improve/ POST Improve document using NLP
+- /documents/<id>/suggestions/ GET View improvement suggestions
+- /documents/<id>/accept/ POST Accept suggested improvements
+- /documents/<id>/improved/ GET View the improved document
+- /documents/<id>/export/ GET Export the improved document as a PDF
+- /documents/ GET List all uploaded documents
+- /documents/create/ POST Create a new document entry
+- /documents/<id>/ GET View details of a specific document
+- /documents/<id>/edit/ PUT Edit a specific document
+- /documents/<id>/delete/ DELETE Delete a specific document
