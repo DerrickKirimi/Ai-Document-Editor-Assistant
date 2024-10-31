@@ -1,7 +1,17 @@
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, HttpResponse
 # For Flash Messages
 from django.contrib import messages
 import bleach
+
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
 
 from .models import Document, Content
 from django.utils import timezone
@@ -15,7 +25,9 @@ from django.core.paginator import Paginator
 import os
 import docx2txt  # for DOCX files
 from PyPDF2 import PdfReader  # for PDF files
-
+from .models import Document, Content
+from .forms import UserRegistrationForm, DocumentForm, ContentForm
+from django.core.paginator import Paginator
 from django.template.loader import render_to_string
 from weasyprint import HTML #To export pdf files
 
@@ -59,253 +71,217 @@ def logout_user(request):
 
 @login_required
 def main(request):
-    return render(request,'app1/base.html')
+    return render(request, 'app1/base.html')
 
-global text
-def upload_document(request):
-    try:
-        if request.method == 'POST':
-            uploaded_file = request.FILES['document']
+# Upload Document API
+class UploadDocumentView(APIView):
+    permission_classes = [IsAuthenticated]
 
-            valid_extensions = ['.txt', '.doc', '.docx', '.pdf']  # Add valid formats
-            _, file_extension = os.path.splitext(uploaded_file.name)
+    def post(self, request):
+        uploaded_file = request.FILES.get('document')
 
-            if file_extension.lower() not in valid_extensions:
+        valid_extensions = ['.txt', '.doc', '.docx', '.pdf']
+        _, file_extension = os.path.splitext(uploaded_file.name)
+
+        if file_extension.lower() not in valid_extensions:
                 messages.error(request, 'Invalid file format. Please upload a .pdf, .txt, .doc, or .docx file.')
                 return render(request, 'app1/base.html')  # Stay on the upload page
 
             #Ensure the media directory exists
-            os.makedirs('media', exist_ok=True)
+        os.makedirs('media', exist_ok=True)
 
             # Save the uploaded file to a temporary location
-            temporary_file_path = os.path.join('media', uploaded_file.name)
-            with open(temporary_file_path, 'wb+') as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
+        temporary_file_path = os.path.join('media', uploaded_file.name)
+
+        with open(temporary_file_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
 
             # Set title based on filename without the extension
-            title = os.path.splitext(uploaded_file.name)[0]
+        title = os.path.splitext(uploaded_file.name)[0]
+        text = ''
 
-            # Determine file format and extract text accordingly
-            if uploaded_file.content_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        # Determine file format and extract text accordingly
+        if uploaded_file.content_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
                 # DOCX file
-                text = ''
-                text = docx2txt.process(temporary_file_path)
-            elif uploaded_file.content_type == 'application/pdf':
+            text = ''
+            text = docx2txt.process(temporary_file_path)
+        elif uploaded_file.content_type == 'application/pdf':
                 # PDF file using PyPDF2
-                reader = PdfReader(temporary_file_path)
-                text = ''
-                for page in reader.pages:
-                    text += page.extract_text()
-            elif uploaded_file.content_type == 'text/plain':
+            reader = PdfReader(temporary_file_path)
+            text = ''
+            for page in reader.pages:
+                text += page.extract_text()
+        elif uploaded_file.content_type == 'text/plain':
                 # TXT file
-                with open(temporary_file_path, 'r') as f:
-                    text = f.read()
-            else:
-                messages.error(request, 'Invalid file format. Please upload a .txt, .doc, or .docx file.')
-                return render(request, 'app1/base.html')  # Stay on the upload page
+            with open(temporary_file_path, 'r') as f:
+                text = f.read()
+        else:
+            os.remove(temporary_file_path)
+            return Response({'error': 'Invalid file format. Please upload a .pdf, .txt, .doc, or .docx file.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
             # Remove the temporary file
-            os.remove(temporary_file_path)
+        os.remove(temporary_file_path)
 
-            # Save document metadata in Documents table
-            document = Document.objects.create(user=request.user, status="Uploaded")
+        # Save document metadata in Documents table
+        document = Document.objects.create(user=request.user, status="Uploaded")
 
             # Save extracted content
-            Content.objects.create(document=document, original_text=text)
+        Content.objects.create(document=document, original_text=text)
 
-            messages.success(request, "Document uploaded and text extracted successfully !")
+        return Response({'message': 'Document uploaded and text extracted successfully!',
+                         'document_id': document.id}, status=status.HTTP_201_CREATED)
 
-            return redirect('show_original', document_id=document.id)
-            
-            #return render(request, 'app1/showOriginal.html', {'extracted_text': text})
+# View Original Document API
+class ShowOriginalView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    except Exception as e:
-        # Handle exceptions (e.g., file not found, extraction error)
-        messages.error(request, 'Incorrect File Format: {}'.format(str(e)))
-    return render(request, 'app1/showOriginal.html')
+    def get(self, request, document_id):
+        document = get_object_or_404(Document, id=document_id, user=request.user)
+        context = {
+            'document': document,
+            'original_text': document.content.original_text,
+        }
+        return render(request, 'app1/showOriginal.html', context)
 
-@login_required
-def show_original(request, document_id):
-    document = get_object_or_404(Document, id=document_id, user=request.user)
-    
-    if request.method == 'POST':
-        # Save the edited original text from CKEditor
+    def post(self, request, document_id):
+        document = get_object_or_404(Document, id=document_id, user=request.user)
         document.content.original_text = request.POST.get('extracted_text', '')
         document.content.save()
-
-        # Redirect to show_suggestions after saving the original text
         return redirect('show_suggestions', document_id=document.id)
-        
-        # Optionally, add a success message
-        messages.success(request, 'Document updated successfully!')
 
-    # Prepare context with the current original text
-    context = {
-        'document': document,
-        'original_text': document.content.original_text,  # Ensure you're pulling the latest saved text
-    }
-    return render(request, 'app1/showOriginal.html', context)
+# Improve Document API
+class ImproveDocumentView(APIView):
+    permission_classes = [IsAuthenticated]
 
-@login_required
-def improve_document(request, document_id):
-    # Retrieve the document based on the provided ID
-    document = get_object_or_404(Document, id=document_id, user=request.user)
-
-    if request.method == 'POST':
+    def post(self, request, document_id):
+        document = get_object_or_404(Document, id=document_id, user=request.user)
         article_text = request.POST.get('extracted_text', '')
 
         model_type = os.getenv('IMPROVE_MODEL', 'nltk')
-
-        # Determine which model to use for improvement
+        
         if model_type == 'nltk':
             improved_text = improve_nltk(article_text)
         elif model_type == 't5':
             improved_text = improve_t5(article_text)
         else:
-            messages.error(request, 'Invalid model type specified.')
-            return redirect('home')
+            return Response({'error': 'Invalid model type specified.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Save the improved text to the document's content
         document.content.improved_text = improved_text
         document.content.save()
 
-        # Update the document status
         document.status = 'Improved'
         document.save()
 
-        messages.success(request, 'Improvements Generated Successfully!')
-        return redirect('show_suggestions', document_id=document.id)
+        return Response({'message': 'Improvements Generated Successfully!'}, status=status.HTTP_200_OK)
 
-    # If GET request, return the original text for rendering
-    return render(request, 'app1/showOriginal.html', {
-        'document': document,
-        'original_text': document.content.original_text,  # Ensure original text is available
-        'messages': messages.get_messages(request),  # Pass messages for notification
-    })
+# Show Suggestions API
+class ShowSuggestionsView(APIView):
+    permission_classes = [IsAuthenticated]
 
-@login_required
-def show_suggestions(request, document_id):
-    document = get_object_or_404(Document, id=document_id, user=request.user)
+    def get(self, request, document_id):
+        document = get_object_or_404(Document, id=document_id, user=request.user)
+        context = {
+            'document': document,
+            'original_text': document.content.original_text,
+            'improved_text': document.content.improved_text,
+        }
+        return render(request, 'app1/showSuggestions.html', context)
 
-    if request.method == 'POST':
-        # Capture the improved text from the CKEditor field
+    def post(self, request, document_id):
+        document = get_object_or_404(Document, id=document_id, user=request.user)
         improved_text = request.POST.get('improved_text', '')
-        document.content.improved_text = improved_text  # Save the improved text
-        document.content.save()  # Save the improved text to the Document
-        return redirect('show_improved', document_id=document.id)  # Redirect to improved view
+        document.content.improved_text = improved_text
+        document.content.save()
+        return redirect('show_improved', document_id=document.id)
 
-    context = {
-        'document': document,
-        'original_text': document.content.original_text,  # Access original text
-        'improved_text': document.content.improved_text,  # Access improved text
-    }
-    return render(request, 'app1/showSuggestions.html', context)
+# Accept Improvements API
+class AcceptImprovementsView(APIView):
+    permission_classes = [IsAuthenticated]
 
-
-@login_required
-def accept_improvements(request, document_id):
-    document = get_object_or_404(Document, id=document_id, user=request.user)
-
-    if request.method == 'POST':
+    def post(self, request, document_id):
+        document = get_object_or_404(Document, id=document_id, user=request.user)
         original_text = request.POST.get('original_text')
         improved_text = request.POST.get('improved_text')
 
-        # Update the content model
         content = document.content
         content.original_text = original_text
         content.improved_text = improved_text
-        content.save()  # Save changes
+        content.save()
 
-        # Update document status if necessary
         document.status = "Accepted"
         document.save()
 
-        messages.success(request, "Improvements have been accepted and saved successfully!")
-        return redirect('show_improved', document_id=document.id)
+        return Response({'message': "Improvements have been accepted and saved successfully!"}, status=status.HTTP_200_OK)
 
-    # Handle GET requests if necessary
-    context = {
-        'original_text': document.content.original_text,
-        'improved_text': document.content.improved_text,
-        'document': document,
-    }
+# Show Improved Document API
+class ShowImprovedView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    return render(request, 'app1/showSuggestions.html', context)
+    def get(self, request, document_id):
+        document = get_object_or_404(Document, id=document_id, user=request.user)
+        context = {
+            'document': document,
+            'improved_text': document.content.improved_text,
+        }
+        return render(request, 'app1/showImproved.html', context)
 
-@login_required
-def show_improved(request, document_id):
-    document = get_object_or_404(Document, id=document_id, user=request.user)
-
-    if request.method == 'POST':
-        # Capture the final improved text from the CKEditor field
+    def post(self, request, document_id):
+        document = get_object_or_404(Document, id=document_id, user=request.user)
         final_improved_text = request.POST.get('final_improved_text', '')
-        document.content.improved_text = final_improved_text  # Save the final improved text
-        document.content.save()  # Save changes to the Document
-        
-        # Check if it's an AJAX request
+        document.content.improved_text = final_improved_text
+        document.content.save()
+
         if request.is_ajax():
             return JsonResponse({'success': True, 'message': 'Changes saved successfully.'})
 
-        return redirect('show_improved', document_id=document.id)  # Redirect back to showImproved with updated text
+        return redirect('show_improved', document_id=document.id)
 
-    context = {
-        'document': document,
-        'improved_text': document.content.improved_text,  # Display the improved text
-    }
-    return render(request, 'app1/showImproved.html', context)
+# Export PDF API
+class ExportPDFView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request, document_id):
+        document = get_object_or_404(Document, id=document_id, user=request.user)
+        html_content = document.content.improved_text
 
-def clean_html(html):
-    return bleach.clean(html, strip=True)
+        soup = BeautifulSoup(html_content, 'html.parser')
 
-@login_required
-def export_pdf(request, document_id):
-    document = get_object_or_404(Document, id=document_id, user=request.user)
+        for tag in soup.find_all():
+            for attr in ["class", "style"]:
+                if attr in tag.attrs:
+                    del tag[attr]
 
-    # Get the HTML content from the improved text
-    html_content = document.content.improved_text
+        for br in soup.find_all('br'):
+            br.insert_before('\n')
 
-    # Use BeautifulSoup to clean and modify the HTML
-    soup = BeautifulSoup(html_content, 'html.parser')
+        cleaned_html = soup.prettify()
 
-    # Optional: Clean specific tags, remove unwanted attributes, or modify structure
-    for tag in soup.find_all():
-        # Example: Strip unwanted attributes like class and style
-        for attr in ["class", "style"]:
-            if attr in tag.attrs:
-                del tag[attr]
+        context = {
+            'improved_text': cleaned_html,
+            'document': document,
+        }
+        html_string = render_to_string('app1/pdf_template.html', context)
 
-    # Maintain new lines by replacing <br> tags and ensuring paragraph tags are used
-    for br in soup.find_all('br'):
-        br.insert_before('\n')  # Insert a new line before <br> tags
+        pdf = HTML(string=html_string).write_pdf()
 
-    # Convert back to a string while keeping the text formatted properly
-    cleaned_html = soup.prettify()  # Use prettify for structured HTML
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{document.id}_improved.pdf"'
+        return response
 
-    # Render the HTML for the PDF
-    context = {
-        'improved_text': cleaned_html,  # Use cleaned HTML for rendering
-        'document': document,
-    }
-    html_string = render_to_string('app1/pdf_template.html', context)
+# List Documents API
+class ListDocumentsView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    # Generate PDF
-    pdf = HTML(string=html_string).write_pdf()
+    def get(self, request):
+        documents = Document.objects.filter(user=request.user).order_by('-upload_date')
+        paginator = Paginator(documents, 5)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'app1/list_documents.html', {'page_obj': page_obj})
 
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{document.id}_improved.pdf"'
-    return response
-
-from .forms import DocumentForm, ContentForm
-
-@login_required
-def list_documents(request):
-    documents = Document.objects.filter(user=request.user).order_by('-upload_date')
-    paginator = Paginator(documents, 5)  # Show 5 documents per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'app1/list_documents.html', {'page_obj': page_obj})
+# Document creation and update views will remain unchanged, or you can adapt them similarly
 
 
 def create_document(request):
