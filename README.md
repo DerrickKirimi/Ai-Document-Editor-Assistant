@@ -32,7 +32,7 @@ Document Assistant is an AI-powered web application designed to help users edit,
 1. **Clone the repository**:
 
    ```bash
-   git clone git@github.com:DerrickKirimi/Ai-DocumentDocument-Editor-Assistant.git
+   git clone git@github.com:DerrickKirimi/Ai-Document-Editor-Assistant.git
    cd Ai-Document-Editor-Assistant
    ```
 
