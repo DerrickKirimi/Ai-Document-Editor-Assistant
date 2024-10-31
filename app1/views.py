@@ -32,6 +32,8 @@ from django.contrib import messages
 import io
 from bs4 import BeautifulSoup
 from django.core.paginator import Paginator
+from django.http import JsonResponse
+
 
 def register(request):
     """
@@ -286,6 +288,11 @@ def show_improved(request, document_id):
         final_improved_text = request.POST.get('final_improved_text', '')
         document.content.improved_text = final_improved_text  # Save the final improved text
         document.content.save()  # Save changes to the Document
+        
+        # Check if it's an AJAX request
+        if request.is_ajax():
+            return JsonResponse({'success': True, 'message': 'Changes saved successfully.'})
+
         return redirect('show_improved', document_id=document.id)  # Redirect back to showImproved with updated text
 
     context = {

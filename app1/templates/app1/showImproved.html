@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/show.css' %}">
     <script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
     {% block title %}
       <title>Improved Text</title>
     {% endblock title %}
@@ -30,7 +31,7 @@
         <form method="get" action="{% url 'export_pdf' document_id=document.id %}">
           {% csrf_token %}
           <div class="textarea-container">
-              <textarea name="improved_text" rows="12" readonly>{{ improved_text|safe }}</textarea>
+              <textarea name="final_improved_text" id="editor" rows="12">{{ improved_text|safe }}</textarea> <!-- Changed name attribute to final_improved_text -->
           </div>
           <br>
           <!-- Button Container for Home and Export to PDF -->
@@ -39,11 +40,6 @@
               {% csrf_token %}
               <button type="submit" class="custom-btn">Export to PDF</button>
             </form>
-            <!--
-            <form action="{% url 'main' %}" method="post" style="display: inline;">
-              {% csrf_token %}
-              <button type="submit" class="custom-btn">Home</button>
-            </form> -->
           </div>
           <br>
         </form>
@@ -54,8 +50,12 @@
     {% block script %}
     <script>
         // Initialize CKEditor for the improved text area
+        let editorInstance; // Declare variable to store the editor instance
         ClassicEditor
-            .create(document.querySelector('textarea[name="improved_text"]'))
+            .create(document.querySelector('#editor'))
+            .then(editor => {
+                editorInstance = editor; // Store the instance for later use
+            })
             .catch(error => {
                 console.error(error);
             });
@@ -75,6 +75,29 @@
                 textSection.scrollIntoView({ behavior: 'smooth' });
             }
         });
+
+        // Use AJAX to save changes in real-time
+        editorInstance.model.document.on('change:data', function() {
+            var data = {
+                'final_improved_text': editorInstance.getData(), // Get data from CKEditor instance
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            };
+
+            $.ajax({
+                url: "{% url 'show_improved' document.id %}",
+                type: "POST",
+                data: data,
+                success: function(response) {
+                    if (response.success) {
+                        console.log(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error saving changes:', error);
+                }
+            });
+        });
+
     </script>
     {% endblock script %}
   </body>
