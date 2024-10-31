@@ -51,7 +51,7 @@ def register(request):
         form = UserRegistrationForm()
 
     context = {"form": form}
-    return render(request, "app1/register.html", context)
+    return render(request, "document_assistant/register.html", context)
 
 def logout_user(request):
     logout(request)
@@ -59,7 +59,7 @@ def logout_user(request):
 
 @login_required
 def main(request):
-    return render(request,'app1/base.html')
+    return render(request,'document_assistant/base.html')
 
 global text
 def upload_document(request):
@@ -72,7 +72,7 @@ def upload_document(request):
 
             if file_extension.lower() not in valid_extensions:
                 messages.error(request, 'Invalid file format. Please upload a .pdf, .txt, .doc, or .docx file.')
-                return render(request, 'app1/base.html')  # Stay on the upload page
+                return render(request, 'document_assistant/base.html')  # Stay on the upload page
 
             #Ensure the media directory exists
             os.makedirs('media', exist_ok=True)
@@ -103,7 +103,7 @@ def upload_document(request):
                     text = f.read()
             else:
                 messages.error(request, 'Invalid file format. Please upload a .txt, .doc, or .docx file.')
-                return render(request, 'app1/base.html')  # Stay on the upload page
+                return render(request, 'document_assistant/base.html')  # Stay on the upload page
 
             # Remove the temporary file
             os.remove(temporary_file_path)
@@ -118,12 +118,12 @@ def upload_document(request):
 
             return redirect('show_original', document_id=document.id)
             
-            #return render(request, 'app1/showOriginal.html', {'extracted_text': text})
+            #return render(request, 'document_assistant/showOriginal.html', {'extracted_text': text})
 
     except Exception as e:
         # Handle exceptions (e.g., file not found, extraction error)
         messages.error(request, 'Incorrect File Format: {}'.format(str(e)))
-    return render(request, 'app1/showOriginal.html')
+    return render(request, 'document_assistant/showOriginal.html')
 
 @login_required
 def show_original(request, document_id):
@@ -145,7 +145,7 @@ def show_original(request, document_id):
         'document': document,
         'original_text': document.content.original_text,  # Ensure you're pulling the latest saved text
     }
-    return render(request, 'app1/showOriginal.html', context)
+    return render(request, 'document_assistant/showOriginal.html', context)
 
 def improve_nltk(article_text):
     # Preprocessing
@@ -224,7 +224,7 @@ def improve_document(request, document_id):
         return redirect('show_suggestions', document_id=document.id)
 
     # If GET request, return the original text for rendering
-    return render(request, 'app1/showOriginal.html', {
+    return render(request, 'document_assistant/showOriginal.html', {
         'document': document,
         'original_text': document.content.original_text,  # Ensure original text is available
         'messages': messages.get_messages(request),  # Pass messages for notification
@@ -246,7 +246,7 @@ def show_suggestions(request, document_id):
         'original_text': document.content.original_text,  # Access original text
         'improved_text': document.content.improved_text,  # Access improved text
     }
-    return render(request, 'app1/showSuggestions.html', context)
+    return render(request, 'document_assistant/showSuggestions.html', context)
 
 
 @login_required
@@ -277,7 +277,7 @@ def accept_improvements(request, document_id):
         'document': document,
     }
 
-    return render(request, 'app1/showSuggestions.html', context)
+    return render(request, 'document_assistant/showSuggestions.html', context)
 
 @login_required
 def show_improved(request, document_id):
@@ -299,7 +299,7 @@ def show_improved(request, document_id):
         'document': document,
         'improved_text': document.content.improved_text,  # Display the improved text
     }
-    return render(request, 'app1/showImproved.html', context)
+    return render(request, 'document_assistant/showImproved.html', context)
 
 
 def clean_html(html):
@@ -334,7 +334,7 @@ def export_pdf(request, document_id):
         'improved_text': cleaned_html,  # Use cleaned HTML for rendering
         'document': document,
     }
-    html_string = render_to_string('app1/pdf_template.html', context)
+    html_string = render_to_string('document_assistant/pdf_template.html', context)
 
     # Generate PDF
     pdf = HTML(string=html_string).write_pdf()
@@ -351,7 +351,7 @@ def list_documents(request):
     paginator = Paginator(documents, 5)  # Show 5 documents per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'app1/list_documents.html', {'page_obj': page_obj})
+    return render(request, 'document_assistant/list_documents.html', {'page_obj': page_obj})
 
 
 def create_document(request):
@@ -374,7 +374,7 @@ def create_document(request):
         document_form = DocumentForm()
         content_form = ContentForm()
 
-    return render(request, 'app1/create_document.html', {
+    return render(request, 'document_assistant/create_document.html', {
         'document_form': document_form,
         'content_form': content_form
     })
@@ -395,7 +395,7 @@ def update_document(request, document_id):
     else:
         document_form = DocumentForm(instance=document)
         content_form = ContentForm(instance=content)
-    return render(request, 'app1/update_document.html', {
+    return render(request, 'document_assistant/update_document.html', {
         'document_form': document_form, 'content_form': content_form, 'document': document
     })
 
@@ -406,11 +406,11 @@ def delete_document(request, document_id):
         document.delete()
         messages.success(request, 'Document deleted successfully.')
         return redirect('list_documents')
-    return render(request, 'app1/delete_document.html', {'document': document})
+    return render(request, 'document_assistant/delete_document.html', {'document': document})
 
 @login_required
 def view_document(request, document_id):
     document = get_object_or_404(Document, id=document_id, user=request.user)
     content = document.content
-    return render(request, 'app1/view_document.html', {'document': document, 'content': content})
+    return render(request, 'document_assistant/view_document.html', {'document': document, 'content': content})
 

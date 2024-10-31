@@ -4,7 +4,7 @@ Document Assistant is an AI-powered web application designed to help users edit,
 
 ## Table of Contents
 
-- [Document Assistant](#document-assistant)
+- [Document Assistant](#document_assistant)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
   - [Technologies](#technologies)
@@ -32,10 +32,9 @@ Document Assistant is an AI-powered web application designed to help users edit,
 1. **Clone the repository**:
 
    ```bash
-   git clone git@github.com:DerrickKirimi/Ai-Document-Editor-Assistant.git
+   git clone https://github.com/DerrickKirimi/Ai-Document-Editor-Assistant.git
    cd Ai-Document-Editor-Assistant
    ```
-
 2. **Create a virtual environment**:
 
 ```bash
@@ -46,10 +45,9 @@ env\Scripts\activate     # For Windows
 
 3. **Install dependencies**:
 
-    ```bash
-    pip install -r requirements.txt
-    ```
-
+   ```bash
+   pip install -r requirements.txt
+   ```
 4. **Setup Database**:
 
 ```bash
@@ -67,6 +65,7 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+
 ## Usage
 
 - Login: Start by logging into the application (or register if you are a new user).
@@ -76,19 +75,20 @@ python manage.py runserver
 - Export: Download your improved document as a PDF.
 
 ## Endpoints
+
 - / GET Home page
 - /login/ GET Login page
 - /logout/ GET Logout page
 - /register/ GET Registration page
 - /UPLOAD POST Upload a new document
-- /documents/<id>/original/ GET View the original document
-- /documents/<id>/improve/ POST Improve document using NLP
-- /documents/<id>/suggestions/ GET View improvement suggestions
-- /documents/<id>/accept/ POST Accept suggested improvements
-- /documents/<id>/improved/ GET View the improved document
-- /documents/<id>/export/ GET Export the improved document as a PDF
+- /documents/`<id>`/original/ GET View the original document
+- /documents/`<id>`/improve/ POST Improve document using NLP
+- /documents/`<id>`/suggestions/ GET View improvement suggestions
+- /documents/`<id>`/accept/ POST Accept suggested improvements
+- /documents/`<id>`/improved/ GET View the improved document
+- /documents/`<id>`/export/ GET Export the improved document as a PDF
 - /documents/ GET List all uploaded documents
 - /documents/create/ POST Create a new document entry
-- /documents/<id>/ GET View details of a specific document
-- /documents/<id>/edit/ PUT Edit a specific document
-- /documents/<id>/delete/ DELETE Delete a specific document
+- /documents/`<id>`/ GET View details of a specific document
+- /documents/`<id>`/edit/ PUT Edit a specific document
+- /documents/`<id>`/delete/ DELETE Delete a specific document

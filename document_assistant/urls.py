@@ -5,9 +5,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 from .views import (main, register, logout_user)
 urlpatterns = [
     path('', views.main, name='main'),
-    path("login/", LoginView.as_view(template_name="app1/login.html"),
+    path("login/", LoginView.as_view(template_name="document_assistant/login.html"),
         name="login"),
-    path("logout/", LogoutView.as_view(template_name="app1/logout.html"),
+    path("logout/", LogoutView.as_view(template_name="document_assistant/logout.html"),
         name="logout"),
     path("register/", register, name="register"),
     path('UPLOAD', views.upload_document, name='upload_document'),

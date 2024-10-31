@@ -7,7 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app1', '0001_initial'),
+        ('document_assistant', '0001_initial'),
     ]
 
     operations = [

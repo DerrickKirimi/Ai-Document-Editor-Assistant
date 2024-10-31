@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app1', '0002_alter_content_improved_text_and_more'),
+        ('document_assistant', '0002_alter_content_improved_text_and_more'),
     ]
 
     operations = [

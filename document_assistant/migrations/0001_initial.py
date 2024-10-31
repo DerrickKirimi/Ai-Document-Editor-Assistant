@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('original_text', models.TextField()),
                 ('improved_text', models.TextField(blank=True, null=True)),
-                ('document', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='content', to='app1.document')),
+                ('document', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='content', to='document_assistant.document')),
             ],
         ),
     ]

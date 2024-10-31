@@ -1,4 +1,4 @@
-{% extends 'app1/base.html' %}
+{% extends 'document_assistant/base.html' %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -9,16 +9,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/show.css' %}">
     <script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>
+
     {% block title %}
-      <title>Document Suggestions</title>
+      <title>Extracted Text</title>
     {% endblock title %}
   </head>
   {% endblock head %}
   <body>
     {% block content %}
+
     <div class="container">
-        <h2 class="center">Improvement Suggestion</h2>
-        
+        <h2 class="center">Extracted Text</h2>
         <!-- Notification Container -->
         <div class="notification-container">
           {% for message in messages %}
@@ -27,42 +28,24 @@
               </div>
           {% endfor %}
         </div>
-        
-        <form method="post" action="{% url 'accept_improvements' document_id=document.id %}">
+        <form method="post" action="{% url 'improve_document' document_id=document.id %}">
           {% csrf_token %}
-          
-          <div class="textarea-container" style="display: flex; gap: 20px; align-items: flex-start;">
-            <div class="text-area" style="flex: 1;">
-                <h3>Original Text</h3>
-                <textarea name="original_text" rows="10" readonly>{{ original_text|safe }}</textarea>
-            </div>
-            <div class="text-area" style="flex: 1;">
-                <h3>Improved Text</h3>
-                <textarea name="improved_text" rows="10">{{ improved_text|safe }}</textarea>
-            </div>
-        </div>
-        
-        
-          
+          <div class="textarea-container">
+              <textarea name="extracted_text" rows="12">{{ original_text|safe }}</textarea>
+          </div>
           <br>
-          <button type="submit" class="custom-btn">Accept</button>
+          <button type="submit" class="custom-btn">Improve</button>
         </form>
-        
         <br>
     </div>
+
     {% endblock %}
     
     {% block script %}
     <script>
-        // Initialize CKEditor for both text areas
+        // Initialize CKEditor
         ClassicEditor
-            .create(document.querySelector('textarea[name="original_text"]'))
-            .catch(error => {
-                console.error(error);
-            });
-        
-        ClassicEditor
-            .create(document.querySelector('textarea[name="improved_text"]'))
+            .create(document.querySelector('textarea[name="extracted_text"]'))
             .catch(error => {
                 console.error(error);
             });

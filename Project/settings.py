@@ -31,14 +31,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    #'app1.apps.App1Config',
+    #'document_assistant.apps.document_assistantConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app1',
+    'document_assistant',
     'crispy_forms',
     'crispy_bootstrap4',
     'ckeditor'
