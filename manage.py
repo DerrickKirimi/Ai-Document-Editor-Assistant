@@ -2,21 +2,24 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+from dotenv import load_dotenv  # Import to load environment variables from .env
 
 def main():
     """Run administrative tasks."""
+    load_dotenv()  # Load environment variables from .env, if available
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Project.settings')
     
-    # Check for the model argument
-    model_type = 'nltk'  # default
+    # Set default model type and check if --model argument is provided
+    model_type = os.getenv('IMPROVE_MODEL', 'nltk')  # Use .env value or default to 'nltk'
     if '--model' in sys.argv:
         model_index = sys.argv.index('--model') + 1
         if model_index < len(sys.argv):
             model_type = sys.argv[model_index]
+            # Remove --model and its value from sys.argv to avoid interfering with Django commands
+            sys.argv.pop(model_index)  
             sys.argv.remove('--model')
-            sys.argv.remove(model_type)
-
+    
+    # Set IMPROVE_MODEL in environment
     os.environ['IMPROVE_MODEL'] = model_type
     
     try:

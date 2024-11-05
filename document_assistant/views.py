@@ -1,4 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponse
+import requests
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 # For Flash Messages
 from django.contrib import messages
 import bleach
@@ -33,6 +36,11 @@ import io
 from bs4 import BeautifulSoup
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 def register(request):
@@ -171,8 +179,49 @@ def improve_nltk(article_text):
             if word in word_frequencies and len(sent.split()) < 30:
                 sentence_scores[sent] = sentence_scores.get(sent, 0) + word_frequencies[word]
                 
-    summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
+    summary_sentences = heapq.nlargest(300, sentence_scores, key=sentence_scores.get)
     return ' '.join(summary_sentences)
+
+
+
+def improve_grok(article_text):
+    # Define the API endpoint and headers
+    url = "https://api.x.ai/v1/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {os.getenv('XAI_API_KEY')}",  # Use the API key from environment variable
+    }
+
+    # Prepare the payload with the modified prompt
+    payload = {
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a professional document editor focused on improving clarity, consistency, and professionalism. You should provide a well-structured, clear, and concise document in plain text, without markdown or special formatting. Focus on fixing inconsistencies, readability, and conciseness."
+            },
+            {
+                "role": "user",
+                "content": f"Please improve the following document, making it clear, professional, and well-structured. Ensure that URLs are properly formatted, bullet points are uniform, headings are structured, and sentences are clear. Provide the document as plain text, not in markdown or any other markup language. Here is the document:\n\n{article_text}"
+            }
+        ],
+        "model": "grok-beta",
+        "stream": False,
+        "temperature": 0
+    }
+
+    # Make the API request
+    response = requests.post(url, headers=headers, json=payload)
+
+    # Handle the response
+    if response.status_code == 200:
+        response_data = response.json()
+        # Extract the improved text from the response
+        improved_text = response_data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        return improved_text.strip()  # Return the improved text
+    else:
+        # Handle errors appropriately
+        print(f"Error: {response.status_code}, {response.text}")
+        return "Error improving the document."
 
 def improve_t5(text):
     from transformers import T5ForConditionalGeneration, T5Tokenizer
@@ -195,31 +244,31 @@ def improve_t5(text):
 
 @login_required
 def improve_document(request, document_id):
-    # Retrieve the document based on the provided ID
+    # Retrieve the document based on the provided ID and the requesting user
     document = get_object_or_404(Document, id=document_id, user=request.user)
 
     if request.method == 'POST':
         article_text = request.POST.get('extracted_text', '')
+        model_type = os.getenv('IMPROVE_MODEL', 'nltk')  # Use environment variable for model choice
 
-        model_type = os.getenv('IMPROVE_MODEL', 'nltk')
-
-        # Determine which model to use for improvement
+        # Select model and apply improvement based on the environment setting
         if model_type == 'nltk':
             improved_text = improve_nltk(article_text)
+        elif model_type == 'grok':
+            improved_text = improve_grok(article_text)
         elif model_type == 't5':
             improved_text = improve_t5(article_text)
         else:
             messages.error(request, 'Invalid model type specified.')
             return redirect('home')
 
-        # Save the improved text to the document's content
+        # Save the improved text and update document status
         document.content.improved_text = improved_text
         document.content.save()
-
-        # Update the document status
         document.status = 'Improved'
         document.save()
 
+        # Success message and redirect to show suggestions
         messages.success(request, 'Improvements Generated Successfully!')
         return redirect('show_suggestions', document_id=document.id)
 
