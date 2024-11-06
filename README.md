@@ -48,6 +48,16 @@ env\Scripts\activate     # For Windows
    ```bash
    pip install -r requirements.txt
    ```
+   **Configure Environment Variables**:
+
+    Create a .env file in the root directory if it doesn’t exist.
+
+    Add your API key to the .env file as follows:
+
+    ```bash
+    X_API_KEY=your_api_key_here
+    ```
+
 4. **Setup Database**:
 
 ```bash
@@ -63,7 +73,18 @@ python manage.py createsuperuser
 6.**Run the server**:
 
 ```bash
-python manage.py runserver
+python manage.py runserver          #Defaults to nltk model
+```
+
+**Run with Model Options**:
+
+To specify the model options, use the following arguments when starting the server:
+
+```bash
+python manage.py runserver --model nltk    # Use NLTK for document improvements
+python manage.py runserver --model grok    # Use Grok2 via X.ai api key
+python manage.py runserver --model hg      # Use HuggingFace transformers T5 model 
+
 ```
 
 ## Usage
