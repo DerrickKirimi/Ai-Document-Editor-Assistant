@@ -55,7 +55,7 @@ env\Scripts\activate     # For Windows
     Add your API key to the .env file as follows:
 
     ```bash
-    X_API_KEY=your_api_key_here
+    XAI_API_KEY=your_api_key_here
     ```
 
 4. **Setup Database**:
