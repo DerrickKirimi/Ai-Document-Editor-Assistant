@@ -197,11 +197,22 @@ def improve_grok(article_text):
         "messages": [
             {
                 "role": "system",
-                "content": "You are a professional document editor focused on improving clarity, consistency, and professionalism. You should provide a well-structured, clear, and concise document in plain text, without markdown or special formatting. Focus on fixing inconsistencies, readability, and conciseness."
+                "content": (
+                    "You are a professional document editor creating a clear, structured plain text output. "
+                    "Format the document for optimal readability: separate content into paragraphs with line breaks, "
+                    "use plain hyphens (-) for bullet points, and ensure each heading appears on its own line. "
+                    "Place each bullet point and each paragraph on a new line, and split long lines as needed for readability. "
+                    "Avoid any markdown symbols, bold markers (**), or special characters; use only plain text."
+    
+                )
             },
             {
                 "role": "user",
-                "content": f"Please improve the following document, making it clear, professional, and well-structured. Ensure that URLs are properly formatted, bullet points are uniform, headings are structured, and sentences are clear. Provide the document as plain text, not in markdown or any other markup language. Here is the document:\n\n{article_text}"
+                "content": (
+                    f"Please improve the following document for clarity and professional structure. "
+                    f"Format the document in plain text with clear headings, paragraphs, and line breaks "
+                    f"for readability. Do not use markdown symbols. Here is the document:\n\n{article_text}"
+                )
             }
         ],
         "model": "grok-beta",
