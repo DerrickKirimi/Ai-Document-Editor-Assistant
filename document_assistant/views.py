@@ -117,7 +117,7 @@ def upload_document(request):
             os.remove(temporary_file_path)
 
             # Save document metadata in Documents table
-            document = Document.objects.create(user=request.user, status="Uploaded")
+            document = Document.objects.create(user=request.user, title=title, status="Uploaded")
 
             # Save extracted content
             Content.objects.create(document=document, original_text=text)
@@ -192,7 +192,7 @@ def improve_grok(article_text):
         "Authorization": f"Bearer {os.getenv('XAI_API_KEY')}",  # Use the API key from environment variable
     }
 
-    # Prepare the payload with the modified prompt
+    # Prepare the payload with the prompt
     payload = {
         "messages": [
             {
@@ -230,13 +230,13 @@ def improve_grok(article_text):
         improved_text = response_data.get("choices", [{}])[0].get("message", {}).get("content", "")
         return improved_text.strip()  # Return the improved text
     else:
-        # Handle errors appropriately
+        # Handle errors
         print(f"Error: {response.status_code}, {response.text}")
         return "Error improving the document."
 
 def improve_t5(text):
     from transformers import T5ForConditionalGeneration, T5Tokenizer
-    # Load T5 model and tokenizer once when the module is imported
+    # Load T5 model and tokenizer once the module is imported
     model_name = "t5-small"
     tokenizer = T5Tokenizer.from_pretrained(model_name)
     model = T5ForConditionalGeneration.from_pretrained(model_name)

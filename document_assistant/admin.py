@@ -12,7 +12,7 @@ class DocumentAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'status', 'title')
     list_filter = ('status', 'upload_date')
     ordering = ('-upload_date',)
-    inlines = [ContentInline]  # Add the Content inline to Document admin
+    inlines = [ContentInline]  # Add Content inline to Document admin
 
     # Specify editable fields
     fields = ('user', 'title', 'status')  # Only these fields will appear for editing in Document
