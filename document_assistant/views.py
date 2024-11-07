@@ -169,18 +169,26 @@ def improve_nltk(article_text):
     for word in nltk.word_tokenize(formatted_article_text):
         if word not in stopwords:
             word_frequencies[word] = word_frequencies.get(word, 0) + 1
+
+    # Ensure word_frequencies is not empty before calling max
+    if not word_frequencies:
+        print("No words found in document content.")
+        return "No improvement needed - document is empty or lacks words."
+
     maximum_frequency = max(word_frequencies.values())
     for word in word_frequencies.keys():
         word_frequencies[word] /= maximum_frequency
 
+    # Scoring sentences based on word frequencies
     sentence_scores = {}
     for sent in sentence_list:
         for word in nltk.word_tokenize(sent.lower()):
             if word in word_frequencies and len(sent.split()) < 30:
                 sentence_scores[sent] = sentence_scores.get(sent, 0) + word_frequencies[word]
-                
+
+    # Extracting the top sentences as the summary
     summary_sentences = heapq.nlargest(300, sentence_scores, key=sentence_scores.get)
-    return ' '.join(summary_sentences)
+    return ' '.join(summary_sentences) if summary_sentences else "Improvement completed but no content to show."
 
 
 
