@@ -48,16 +48,16 @@ env\Scripts\activate     # For Windows
    ```bash
    pip install -r requirements.txt
    ```
+
    **Configure Environment Variables**:
 
-    Create a .env file in the root directory if it doesn’t exist.
+   Create a .env file in the root directory if it doesn’t exist.
 
-    Add your API key to the .env file as follows:
+   Add your API key to the .env file as follows:
 
-    ```bash
-    XAI_API_KEY=your_api_key_here
-    ```
-
+   ```bash
+   XAI_API_KEY=your_api_key_here
+   ```
 4. **Setup Database**:
 
 ```bash
@@ -94,6 +94,7 @@ python manage.py runserver --model hg      # Use HuggingFace transformers T5 mod
 - View and Edit: Review the original and suggested improvements in the side-by-side editor.
 - Accept/Reject Changes: Choose which improvements to keep.
 - Export: Download your improved document as a PDF.
+- Auto generate documentation by running ``make sphinx`` in AI-Doc-EditorFinal directory
 
 ## Endpoints
 
